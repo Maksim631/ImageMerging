@@ -1,8 +1,9 @@
 import cv2
 import numpy as np
+from scipy.fftpack import fft2
 from matplotlib import pyplot as plt
 import math
-
+import polarTransform as pt
 
 def fourier(img):
     rows, cols = img.shape
@@ -50,12 +51,7 @@ def translation(img1, img2):
 
 
 def logPolarTransform(img):
-    center = (img.shape[0] / 2, img.shape[1] / 2)
-    radius = round(math.sqrt(pow(center[0], 2) + pow(center[1], 2)))
-    shape = (img.shape[1], img.shape[0])
-    result = cv2.warpPolar(img, shape, center, radius, cv2.WARP_POLAR_LINEAR + cv2.WARP_FILL_OUTLIERS)
-
-    return result
+    return pt.convertToPolarImage(img)
 
 
 def rotation(img1, img2):
@@ -67,10 +63,10 @@ def rotation(img1, img2):
 
     # //Mat img1_log{ fourier(img1_logKEK) }
     # //Mat img2_log{ fourier(img2_logKEK) }
-    # cv2.imshow("1", img1Log)
-    # cv2.imshow("2", img2Log)
-    # cv2.waitKey()
-    translationPoint = translation(img1Log, img2Log)
+    cv2.imshow("1", img1Log[0])
+    cv2.imshow("2", img2Log[0])
+    cv2.waitKey()
+    translationPoint = translation(img1Log[0], img2Log[0])
     # int size{ max(img1.rows, img2.cols) }
     # double base{ exp(log(img1.rows / 2) / size) }
     #
