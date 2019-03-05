@@ -4,6 +4,9 @@ from scipy.fftpack import fft2
 from matplotlib import pyplot as plt
 import math
 import polarTransform as pt
+from log_transform import main
+import scipy.ndimage.interpolation as ndii
+
 
 def fourier(img):
     rows, cols = img.shape
@@ -20,9 +23,9 @@ def fourier(img):
     cv2.magnitude(planes[0], planes[1], planes[0])  # planes[0] = magnitude
     magimg = planes[0]
 
-    matOfOnes = np.ones(magimg.shape, dtype=magimg.dtype)
-    cv2.add(matOfOnes, magimg, magimg)  # switch to logarithmic scale
-    cv2.log(magimg, magimg)
+    # matOfOnes = np.ones(magimg.shape, dtype=magimg.dtype)
+    # cv2.add(matOfOnes, magimg, magimg)  # switch to logarithmic scale
+    # cv2.log(magimg, magimg)
 
     magimg_rows, magimg_cols = magimg.shape
     # crop the spectrum, if it has an odd number of rows or columns
@@ -50,33 +53,67 @@ def translation(img1, img2):
     return result
 
 
-def logPolarTransform(img):
-    return pt.convertToPolarImage(img)
+# def logPolarTransform(img, i):
+#     return logpolar(img)[0]
+    # cv2.imwrite(i + ".png", img*255)  # ("3", img1Log[0])
+    # main(i)
+    # val = i + ".png"
+    # return cv2.imread(cv2.samples.findFile(val), cv2.IMREAD_GRAYSCALE)
 
+def logpolar(image, angles=None, radii=None):
+    """Return log-polar transformed image and log base."""
+    shape = image.shape
+    center = shape[0] / 2, shape[1] / 2
+    if angles is None:
+        angles = shape[0]
+    if radii is None:
+        radii = shape[1]
+    theta = np.empty((angles, radii), dtype='float64')
+    theta.T[:] = np.linspace(0, np.pi, angles, endpoint=False) * -1.0
+    # d = radii
+    d = np.hypot(shape[0] - center[0], shape[1] - center[1])
+    log_base = 10.0 ** (math.log10(d) / (radii))
+    radius = np.empty_like(theta)
+    radius[:] = np.power(log_base,
+                         np.arange(radii, dtype='float64')) - 1.0
+    x = radius * np.sin(theta) + center[0]
+    y = radius * np.cos(theta) + center[1]
+    output = np.empty_like(x)
+    ndii.map_coordinates(image, [x, y], output=output)
+    return output, log_base
 
 def rotation(img1, img2):
     test1 = fourier(img1)
     test2 = fourier(img2)
 
-    img1Log = logPolarTransform(test1)
-    img2Log = logPolarTransform(test2)
+    img1Log, logBase = logpolar(test1)
+    img2Log, logBase = logpolar(test2)
 
     # //Mat img1_log{ fourier(img1_logKEK) }
     # //Mat img2_log{ fourier(img2_logKEK) }
-    cv2.imshow("1", img1Log[0])
-    cv2.imshow("2", img2Log[0])
-    cv2.waitKey()
-    translationPoint = translation(img1Log[0], img2Log[0])
-    # int size{ max(img1.rows, img2.cols) }
-    # double base{ exp(log(img1.rows / 2) / size) }
-    #
-    # Point2d result{ Point2d(-M_PI * translationPoint.x / size, pow(base, translationPoint.y)) }
-    return translationPoint
+    # cv2.imshow("1", img1Log)
+    # cv2.imshow("2", img2Log)
+
+    # cv2.imwrite('1.png', img1Log)  # ("3", img1Log[0])
+    # cv2.imwrite('2.png', img2Log)  # ("4", img2Log[0])
+    # cv2.destroyAllWindows()
+
+    # cv2.waitKey()
+    # np.array(float_img * 255, dtype=np.uint8)
+
+    # print(trans)
+    translationPoint = translation(img1Log, img2Log)
+    translationPoint = [-translationPoint[0], -translationPoint[1]]
+    size = max(img1.shape[0], img2.shape[1])
+    base = math.exp(math.log(img1.shape[0] / 2) / size)
+
+    return (-180 * translationPoint[1]) / size, pow(base, translationPoint[0])
 
 
-img1 = cv2.imread(cv2.samples.findFile("horse2332.png"), cv2.IMREAD_GRAYSCALE)
-img2 = cv2.imread(cv2.samples.findFile("horse_rotated2332.png"), cv2.IMREAD_GRAYSCALE)
+img1 = cv2.imread(cv2.samples.findFile("images/horse.png"), cv2.IMREAD_GRAYSCALE)
+img2 = cv2.imread(cv2.samples.findFile("images/horse_rot_scale.png"), cv2.IMREAD_GRAYSCALE)
 
+# cv2.imshow("123", logPolarTransform(fourier(img1))[0])
 print(rotation(img1, img2))
 
 # plt.subplot(121), plt.imshow(img)

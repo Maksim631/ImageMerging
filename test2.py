@@ -59,12 +59,12 @@ def concatImages(img1, img2, width, height):
 
 if __name__ == '__main__':
     # Read reference image
-    refFilename = "IMG0406.jpg"
+    refFilename = "1.png"
     print("Reading reference image : ", refFilename)
     imReference = cv2.imread(refFilename, cv2.IMREAD_COLOR)
 
     # Read image to be aligned
-    imFilename = "IMG0407.jpg"
+    imFilename = "2.png"
     print("Reading image to align : ", imFilename)
     im = cv2.imread(imFilename, cv2.IMREAD_COLOR)
 

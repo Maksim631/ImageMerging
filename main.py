@@ -2,8 +2,8 @@ import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
 
-img1 = cv.imread('horse.png', 0)  # queryImage
-img2 = cv.imread('horse_rot_scale.png', 0)  # trainImage
+img1 = cv.imread('1.png', 0)  # queryImage
+img2 = cv.imread('2.png', 0)  # trainImage
 # Initiate ORB detector
 orb = cv.ORB_create()
 # find the keypoints and descriptors with ORB
@@ -18,3 +18,6 @@ matches = sorted(matches, key=lambda x: x.distance)
 # Draw first 10 matches.
 img3 = cv.drawMatches(img1, kp1, img2, kp2, matches[:10], flags=2, outImg=img1)
 plt.imshow(img3), plt.show()
+
+
+
