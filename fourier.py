@@ -1,10 +1,6 @@
 import cv2
 import numpy as np
-from scipy.fftpack import fft2
-from matplotlib import pyplot as plt
 import math
-import polarTransform as pt
-from log_transform import main
 import scipy.ndimage.interpolation as ndii
 
 
@@ -48,17 +44,10 @@ def fourier(img):
 
 
 def translation(img1, img2):
-    point = cv2.phaseCorrelate(np.float64(img1), np.float64(img2))
+    point = cv2.phaseCorrelate(np.float32(img1), np.float32(img2))
     result = [round(point[0][0]), round(point[0][1])]
     return result
 
-
-# def logPolarTransform(img, i):
-#     return logpolar(img)[0]
-    # cv2.imwrite(i + ".png", img*255)  # ("3", img1Log[0])
-    # main(i)
-    # val = i + ".png"
-    # return cv2.imread(cv2.samples.findFile(val), cv2.IMREAD_GRAYSCALE)
 
 def logpolar(image, angles=None, radii=None):
     """Return log-polar transformed image and log base."""
@@ -82,6 +71,7 @@ def logpolar(image, angles=None, radii=None):
     ndii.map_coordinates(image, [x, y], output=output)
     return output, log_base
 
+
 def rotation(img1, img2):
     test1 = fourier(img1)
     test2 = fourier(img2)
@@ -94,9 +84,11 @@ def rotation(img1, img2):
     # cv2.imshow("1", img1Log)
     # cv2.imshow("2", img2Log)
 
-    # cv2.imwrite('1.png', img1Log)  # ("3", img1Log[0])
-    # cv2.imwrite('2.png', img2Log)  # ("4", img2Log[0])
-    # cv2.destroyAllWindows()
+    cv2.imwrite('1.png', img1Log*255)  # ("3", img1Log[0])
+    cv2.imwrite('3.png', test1*255)  # ("3", img1Log[0])
+    cv2.imwrite('4.png', test2*255)  # ("3", img1Log[0])
+    cv2.imwrite('2.png', img2Log*255)  # ("4", img2Log[0])
+    cv2.destroyAllWindows()
 
     # cv2.waitKey()
     # np.array(float_img * 255, dtype=np.uint8)
@@ -110,11 +102,16 @@ def rotation(img1, img2):
     return (-180 * translationPoint[1]) / size, pow(base, translationPoint[0])
 
 
-img1 = cv2.imread(cv2.samples.findFile("images/horse.png"), cv2.IMREAD_GRAYSCALE)
-img2 = cv2.imread(cv2.samples.findFile("images/horse_rot_scale.png"), cv2.IMREAD_GRAYSCALE)
+img1 = cv2.imread(cv2.samples.findFile("images/IMG0406.jpg"), cv2.IMREAD_GRAYSCALE)
+img2 = cv2.imread(cv2.samples.findFile("images/IMG0407.jpg"), cv2.IMREAD_GRAYSCALE)
+# img1 = cv2.imread(cv2.samples.findFile("images/horse.png"), cv2.IMREAD_GRAYSCALE)
+# img2 = cv2.imread(cv2.samples.findFile("images/horse_translated.png"), cv2.IMREAD_GRAYSCALE)
 
-# cv2.imshow("123", logPolarTransform(fourier(img1))[0])
 print(rotation(img1, img2))
+# cv2.imshow("1", img1)
+# cv2.imshow("2", img2)
+# cv2.waitKey()
+print(translation(img1, img2))
 
 # plt.subplot(121), plt.imshow(img)
 # plt.title('Input Image'), plt.xticks([]), plt.yticks([])
