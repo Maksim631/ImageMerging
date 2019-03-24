@@ -4,6 +4,25 @@ import math
 import scipy.ndimage.interpolation as ndii
 
 
+def blurSingleBorder(x, y, w, h, image):
+    # cv2.rectangle(image, (x, y), (x + w, y + h), (255, 255, 0), 5)
+    sub_face = image[y:y + h, x:x + w]
+    # apply a gaussian blur on this new recangle image
+    sub_face = cv2.GaussianBlur(sub_face, (23, 23), 30)
+    # merge this blurry rectangle to our final image
+    image[y:y + sub_face.shape[0], x:x + sub_face.shape[1]] = sub_face
+
+
+def blurBorders(input):
+    sizeR = input.shape[0]
+    sizeC = input.shape[1]
+    blurSize = 50
+    blurSingleBorder(0, 0, sizeR, blurSize, input)
+    blurSingleBorder(0, 0, blurSize, sizeR, input)
+    blurSingleBorder(0, sizeR - blurSize, sizeC, blurSize, input)
+    blurSingleBorder(sizeC - blurSize, 0, blurSize, sizeR, input)
+
+
 def fourier(img):
     rows, cols = img.shape
     m = cv2.getOptimalDFTSize(rows)
@@ -19,9 +38,9 @@ def fourier(img):
     cv2.magnitude(planes[0], planes[1], planes[0])  # planes[0] = magnitude
     magimg = planes[0]
 
-    # matOfOnes = np.ones(magimg.shape, dtype=magimg.dtype)
-    # cv2.add(matOfOnes, magimg, magimg)  # switch to logarithmic scale
-    # cv2.log(magimg, magimg)
+    matOfOnes = np.ones(magimg.shape, dtype=magimg.dtype)
+    cv2.add(matOfOnes, magimg, magimg)  # switch to logarithmic scale
+    cv2.log(magimg, magimg)
 
     magimg_rows, magimg_cols = magimg.shape
     # crop the spectrum, if it has an odd number of rows or columns
@@ -84,10 +103,10 @@ def rotation(img1, img2):
     # cv2.imshow("1", img1Log)
     # cv2.imshow("2", img2Log)
 
-    cv2.imwrite('1.png', img1Log*255)  # ("3", img1Log[0])
-    cv2.imwrite('3.png', test1*255)  # ("3", img1Log[0])
-    cv2.imwrite('4.png', test2*255)  # ("3", img1Log[0])
-    cv2.imwrite('2.png', img2Log*255)  # ("4", img2Log[0])
+    cv2.imwrite('1.png', img1Log * 255)  # ("3", img1Log[0])
+    cv2.imwrite('3_2.png', test1 * 255)  # ("3", img1Log[0])
+    cv2.imwrite('4_2.png', test2 * 255)  # ("3", img1Log[0])
+    cv2.imwrite('2.png', img2Log * 255)  # ("4", img2Log[0])
     cv2.destroyAllWindows()
 
     # cv2.waitKey()
@@ -107,11 +126,16 @@ img2 = cv2.imread(cv2.samples.findFile("images/IMG0407.jpg"), cv2.IMREAD_GRAYSCA
 # img1 = cv2.imread(cv2.samples.findFile("images/horse.png"), cv2.IMREAD_GRAYSCALE)
 # img2 = cv2.imread(cv2.samples.findFile("images/horse_translated.png"), cv2.IMREAD_GRAYSCALE)
 
-print(rotation(img1, img2))
-# cv2.imshow("1", img1)
-# cv2.imshow("2", img2)
-# cv2.waitKey()
+blurBorders(img1)
+blurBorders(img2)
+cv2.imwrite('blurred1.png', img1)  # ("3", img1Log[0])
+cv2.imwrite('blurred2.png', img2)
+cv2.destroyAllWindows()
+
 print(translation(img1, img2))
+print(rotation(img1, img2))
+# cv2.imshow("2", img2)
+
 
 # plt.subplot(121), plt.imshow(img)
 # plt.title('Input Image'), plt.xticks([]), plt.yticks([])
