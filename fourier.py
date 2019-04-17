@@ -2,6 +2,9 @@ import cv2
 import numpy as np
 import math
 import scipy.ndimage.interpolation as ndii
+from PIL import Image
+from matplotlib import pyplot
+from scipy.fftpack import ifftn, fftn
 
 
 def blurSingleBorder(x, y, w, h, image):
@@ -25,47 +28,66 @@ def blurBorders(input):
 
 def fourier(img):
     rows, cols = img.shape
-    m = cv2.getOptimalDFTSize(rows)
-    n = cv2.getOptimalDFTSize(cols)
-    padded = cv2.copyMakeBorder(img, 0, m - rows, 0, n - cols, cv2.BORDER_CONSTANT, value=[0, 0, 0])
+    # m = cv2.getOptimalDFTSize(rows)
+    # n = cv2.getOptimalDFTSize(cols)
+    # padded = cv2.copyMakeBorder(img, 0, m - rows, 0, n - cols, cv2.BORDER_CONSTANT, value=[0, 0, 0])
+    f = np.fft.fft2(img)
+    fshift = np.fft.fftshift(f)
+    magnitude_spectrum = 20 * np.log(np.abs(fshift))
+    return magnitude_spectrum
+    # planes = [np.float32(img), np.zeros(img.shape, np.float32)]
+    # compleximg = cv2.merge(planes)  # Add to the expanded another plane with zeros
+    #
+    # cv2.dft(compleximg, compleximg)  # this way the result may fit in the source matrix
+    #
+    # cv2.split(compleximg, planes)  # planes[0] = Re(DFT(img), planes[1] = imgm(DFT(img))
+    # cv2.magnitude(planes[0], planes[1], planes[0])  # planes[0] = magnitude
+    # magimg = planes[0]
+    #
+    # matOfOnes = np.ones(magimg.shape, dtype=magimg.dtype)
+    # cv2.add(matOfOnes, magimg, magimg)  # switch to logarithmic scale
+    # cv2.log(magimg, magimg)
+    #
+    # magimg_rows, magimg_cols = magimg.shape
+    # # crop the spectrum, if it has an odd number of rows or columns
+    # magimg = magimg[0:(magimg_rows & -2), 0:(magimg_cols & -2)]
+    # cx = int(magimg_rows / 2)
+    # cy = int(magimg_cols / 2)
+    # q0 = magimg[0:cx, 0:cy]  # Top-Left - Create a ROimg per quadrant
+    # q1 = magimg[cx:cx + cx, 0:cy]  # Top-Right
+    # q2 = magimg[0:cx, cy:cy + cy]  # Bottom-Left
+    # q3 = magimg[cx:cx + cx, cy:cy + cy]  # Bottom-Right
+    # tmp = np.copy(q0)  # swap quadrants (Top-Left with Bottom-Right)
+    # magimg[0:cx, 0:cy] = q3
+    # magimg[cx:cx + cx, cy:cy + cy] = tmp
+    # tmp = np.copy(q1)  # swap quadrant (Top-Right with Bottom-Left)
+    # magimg[cx:cx + cx, 0:cy] = q2
+    # magimg[0:cx, cy:cy + cy] = tmp
+    #
+    # cv2.normalize(magimg, magimg, 0, 1, cv2.NORM_MINMAX)  # Transform the matrix with float values into a
+    # return magimg
 
-    planes = [np.float32(padded), np.zeros(padded.shape, np.float32)]
-    compleximg = cv2.merge(planes)  # Add to the expanded another plane with zeros
 
-    cv2.dft(compleximg, compleximg)  # this way the result may fit in the source matrix
-
-    cv2.split(compleximg, planes)  # planes[0] = Re(DFT(img), planes[1] = imgm(DFT(img))
-    cv2.magnitude(planes[0], planes[1], planes[0])  # planes[0] = magnitude
-    magimg = planes[0]
-
-    matOfOnes = np.ones(magimg.shape, dtype=magimg.dtype)
-    cv2.add(matOfOnes, magimg, magimg)  # switch to logarithmic scale
-    cv2.log(magimg, magimg)
-
-    magimg_rows, magimg_cols = magimg.shape
-    # crop the spectrum, if it has an odd number of rows or columns
-    magimg = magimg[0:(magimg_rows & -2), 0:(magimg_cols & -2)]
-    cx = int(magimg_rows / 2)
-    cy = int(magimg_cols / 2)
-    q0 = magimg[0:cx, 0:cy]  # Top-Left - Create a ROimg per quadrant
-    q1 = magimg[cx:cx + cx, 0:cy]  # Top-Right
-    q2 = magimg[0:cx, cy:cy + cy]  # Bottom-Left
-    q3 = magimg[cx:cx + cx, cy:cy + cy]  # Bottom-Right
-    tmp = np.copy(q0)  # swap quadrants (Top-Left with Bottom-Right)
-    magimg[0:cx, 0:cy] = q3
-    magimg[cx:cx + cx, cy:cy + cy] = tmp
-    tmp = np.copy(q1)  # swap quadrant (Top-Right with Bottom-Left)
-    magimg[cx:cx + cx, 0:cy] = q2
-    magimg[0:cx, cy:cy + cy] = tmp
-
-    cv2.normalize(magimg, magimg, 0, 1, cv2.NORM_MINMAX)  # Transform the matrix with float values into a
-    return magimg
+def phase_correlation(a, b):
+    G_a = np.fft.fft2(a)
+    G_b = np.fft.fft2(b)
+    conj_b = np.ma.conjugate(G_b)
+    R = G_a * conj_b
+    R /= np.absolute(R)
+    r = np.fft.ifft2(R).real
+    return r
 
 
 def translation(img1, img2):
-    point = cv2.phaseCorrelate(np.float32(img1), np.float32(img2))
-    result = [round(point[0][0]), round(point[0][1])]
-    return result
+    corr = phase_correlation(np.array(img1), np.array(img2))
+    pyplot.imshow(corr, cmap='gray')
+    pyplot.show()
+    corr[0,0] = 0
+    result = np.where(corr == np.amax(corr))
+    return result[0], result [1]
+    # point = cv2.phaseCorrelate(np.float32(img1), np.float32(img2))
+    # result = [round(point[0][0]), round(point[0][1])]
+    # return result
 
 
 def logpolar(image, angles=None, radii=None):
@@ -103,10 +125,10 @@ def rotation(img1, img2):
     # cv2.imshow("1", img1Log)
     # cv2.imshow("2", img2Log)
 
-    cv2.imwrite('1.png', img1Log * 255)  # ("3", img1Log[0])
-    cv2.imwrite('3_2.png', test1 * 255)  # ("3", img1Log[0])
-    cv2.imwrite('4_2.png', test2 * 255)  # ("3", img1Log[0])
-    cv2.imwrite('2.png', img2Log * 255)  # ("4", img2Log[0])
+    cv2.imwrite('1.png', img1Log)  # ("3", img1Log[0])
+    cv2.imwrite('3_2.png', test1)  # ("3", img1Log[0])
+    cv2.imwrite('4_2.png', test2)  # ("3", img1Log[0])
+    cv2.imwrite('2.png', img2Log)  # ("4", img2Log[0])
     cv2.destroyAllWindows()
 
     # cv2.waitKey()
@@ -120,20 +142,27 @@ def rotation(img1, img2):
 
     return (-180 * translationPoint[1]) / size, pow(base, translationPoint[0])
 
-
-img1 = cv2.imread(cv2.samples.findFile("images/IMG0406.jpg"), cv2.IMREAD_GRAYSCALE)
-img2 = cv2.imread(cv2.samples.findFile("images/IMG0407.jpg"), cv2.IMREAD_GRAYSCALE)
+img1Colour = Image.open('images/IMG0406.jpg')
+img2Colour = Image.open('images/IMG0407.jpg')
+img1Grey = cv2.imread(cv2.samples.findFile("images/IMG0406.jpg"), cv2.IMREAD_GRAYSCALE)
+img2Grey = cv2.imread(cv2.samples.findFile("images/IMG0407.jpg"), cv2.IMREAD_GRAYSCALE)
 # img1 = cv2.imread(cv2.samples.findFile("images/horse.png"), cv2.IMREAD_GRAYSCALE)
 # img2 = cv2.imread(cv2.samples.findFile("images/horse_translated.png"), cv2.IMREAD_GRAYSCALE)
 
-blurBorders(img1)
-blurBorders(img2)
-cv2.imwrite('blurred1.png', img1)  # ("3", img1Log[0])
-cv2.imwrite('blurred2.png', img2)
-cv2.destroyAllWindows()
+blurBorders(img1Grey)
+blurBorders(img2Grey)
+# cv2.imwrite('blurred1.png', img1)  # ("3", img1Log[0])
+# cv2.imwrite('blurred2.png', img2)
+# cv2.destroyAllWindows()
 
-print(translation(img1, img2))
-print(rotation(img1, img2))
+x, y = translation(img1Grey, img2Grey)
+image = Image.new('RGB', (1500, 1500))
+image.paste(img1Colour, (0, 0))
+image.paste(img2Colour, (y, x))
+# img2Colour.paste(img1Colour, (x, y))
+pyplot.imshow(image)
+pyplot.show()
+# print(rotation(img1, img2))
 # cv2.imshow("2", img2)
 
 
