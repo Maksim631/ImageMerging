@@ -28,44 +28,10 @@ def blurBorders(input):
 
 def fourier(img):
     rows, cols = img.shape
-    # m = cv2.getOptimalDFTSize(rows)
-    # n = cv2.getOptimalDFTSize(cols)
-    # padded = cv2.copyMakeBorder(img, 0, m - rows, 0, n - cols, cv2.BORDER_CONSTANT, value=[0, 0, 0])
     f = np.fft.fft2(img)
     fshift = np.fft.fftshift(f)
     magnitude_spectrum = 20 * np.log(np.abs(fshift))
     return magnitude_spectrum
-    # planes = [np.float32(img), np.zeros(img.shape, np.float32)]
-    # compleximg = cv2.merge(planes)  # Add to the expanded another plane with zeros
-    #
-    # cv2.dft(compleximg, compleximg)  # this way the result may fit in the source matrix
-    #
-    # cv2.split(compleximg, planes)  # planes[0] = Re(DFT(img), planes[1] = imgm(DFT(img))
-    # cv2.magnitude(planes[0], planes[1], planes[0])  # planes[0] = magnitude
-    # magimg = planes[0]
-    #
-    # matOfOnes = np.ones(magimg.shape, dtype=magimg.dtype)
-    # cv2.add(matOfOnes, magimg, magimg)  # switch to logarithmic scale
-    # cv2.log(magimg, magimg)
-    #
-    # magimg_rows, magimg_cols = magimg.shape
-    # # crop the spectrum, if it has an odd number of rows or columns
-    # magimg = magimg[0:(magimg_rows & -2), 0:(magimg_cols & -2)]
-    # cx = int(magimg_rows / 2)
-    # cy = int(magimg_cols / 2)
-    # q0 = magimg[0:cx, 0:cy]  # Top-Left - Create a ROimg per quadrant
-    # q1 = magimg[cx:cx + cx, 0:cy]  # Top-Right
-    # q2 = magimg[0:cx, cy:cy + cy]  # Bottom-Left
-    # q3 = magimg[cx:cx + cx, cy:cy + cy]  # Bottom-Right
-    # tmp = np.copy(q0)  # swap quadrants (Top-Left with Bottom-Right)
-    # magimg[0:cx, 0:cy] = q3
-    # magimg[cx:cx + cx, cy:cy + cy] = tmp
-    # tmp = np.copy(q1)  # swap quadrant (Top-Right with Bottom-Left)
-    # magimg[cx:cx + cx, 0:cy] = q2
-    # magimg[0:cx, cy:cy + cy] = tmp
-    #
-    # cv2.normalize(magimg, magimg, 0, 1, cv2.NORM_MINMAX)  # Transform the matrix with float values into a
-    # return magimg
 
 
 def phase_correlation(a, b):
@@ -120,21 +86,15 @@ def rotation(img1, img2):
     img1Log, logBase = logpolar(test1)
     img2Log, logBase = logpolar(test2)
 
-    # //Mat img1_log{ fourier(img1_logKEK) }
-    # //Mat img2_log{ fourier(img2_logKEK) }
-    # cv2.imshow("1", img1Log)
-    # cv2.imshow("2", img2Log)
 
-    cv2.imwrite('1.png', img1Log)  # ("3", img1Log[0])
-    cv2.imwrite('3_2.png', test1)  # ("3", img1Log[0])
-    cv2.imwrite('4_2.png', test2)  # ("3", img1Log[0])
-    cv2.imwrite('2.png', img2Log)  # ("4", img2Log[0])
+
+    cv2.imwrite('1.png', img1Log)
+    cv2.imwrite('3_2.png', test1)
+    cv2.imwrite('4_2.png', test2)
+    cv2.imwrite('2.png', img2Log)
     cv2.destroyAllWindows()
 
-    # cv2.waitKey()
-    # np.array(float_img * 255, dtype=np.uint8)
 
-    # print(trans)
     translationPoint = translation(img1Log, img2Log)
     translationPoint = [-translationPoint[0], -translationPoint[1]]
     size = max(img1.shape[0], img2.shape[1])
@@ -146,28 +106,15 @@ img1Colour = Image.open('images/IMG0406.jpg')
 img2Colour = Image.open('images/IMG0407.jpg')
 img1Grey = cv2.imread(cv2.samples.findFile("images/IMG0406.jpg"), cv2.IMREAD_GRAYSCALE)
 img2Grey = cv2.imread(cv2.samples.findFile("images/IMG0407.jpg"), cv2.IMREAD_GRAYSCALE)
-# img1 = cv2.imread(cv2.samples.findFile("images/horse.png"), cv2.IMREAD_GRAYSCALE)
-# img2 = cv2.imread(cv2.samples.findFile("images/horse_translated.png"), cv2.IMREAD_GRAYSCALE)
 
 blurBorders(img1Grey)
 blurBorders(img2Grey)
-# cv2.imwrite('blurred1.png', img1)  # ("3", img1Log[0])
-# cv2.imwrite('blurred2.png', img2)
-# cv2.destroyAllWindows()
 
 x, y = translation(img1Grey, img2Grey)
+print(rotation(img1Grey, img2Grey))
 image = Image.new('RGB', (1500, 1500))
 image.paste(img1Colour, (0, 0))
 image.paste(img2Colour, (y, x))
 # img2Colour.paste(img1Colour, (x, y))
 pyplot.imshow(image)
 pyplot.show()
-# print(rotation(img1, img2))
-# cv2.imshow("2", img2)
-
-
-# plt.subplot(121), plt.imshow(img)
-# plt.title('Input Image'), plt.xticks([]), plt.yticks([])
-# plt.subplot(122), plt.imshow(fourier(img), cmap='gray')
-# plt.title('Magnitude Spectrum'), plt.xticks([]), plt.yticks([])
-# plt.show()

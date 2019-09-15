@@ -2,8 +2,8 @@ import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
 
-img1 = cv.imread('1.png', 0)  # queryImage
-img2 = cv.imread('2.png', 0)  # trainImage
+img1 = cv.imread('images/horse_translated.png', 0)  # queryImage
+img2 = cv.imread('images/horse.png', 0)  # trainImage
 # Initiate ORB detector
 orb = cv.ORB_create()
 # find the keypoints and descriptors with ORB

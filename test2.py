@@ -46,7 +46,7 @@ def alignImages(im1, im2):
 
     # Use homography
     height, width, channels = im2.shape
-    im1Reg = cv2.warpPerspective(im1, h, (2*width, 2*height))
+    im1Reg = cv2.warpPerspective(im1, h, (width+200, height+200))
 
     return concatImages(im2, im1Reg, width, height)
     # return im1Reg, h
@@ -59,12 +59,12 @@ def concatImages(img1, img2, width, height):
 
 if __name__ == '__main__':
     # Read reference image
-    refFilename = "1.png"
+    refFilename = "images/IMG0406.jpg"
     print("Reading reference image : ", refFilename)
     imReference = cv2.imread(refFilename, cv2.IMREAD_COLOR)
 
     # Read image to be aligned
-    imFilename = "2.png"
+    imFilename = "images/IMG0407.jpg"
     print("Reading image to align : ", imFilename)
     im = cv2.imread(imFilename, cv2.IMREAD_COLOR)
 
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     imReg = alignImages(im, imReference)
 
     # img3 = np.concatenate((imReference, imReg), axis=1)
-    plt.imshow(imReg, 'gray'), plt.show()
+    plt.imshow(imReg), plt.show()
     # Write aligned image to disk.
 
     # Print estimated homography

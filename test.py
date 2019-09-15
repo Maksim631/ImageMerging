@@ -51,4 +51,4 @@ draw_params = dict(matchColor=(0, 255, 0),  # draw matches in green color
                    matchesMask=matchesMask,  # draw only inliers
                    flags=2)
 img3 = cv.drawMatches(img1, kp1, img2, kp2, good, None, **draw_params)
-plt.imshow(img3, 'gray'), plt.show()
+plt.imshow(img3), plt.show()
