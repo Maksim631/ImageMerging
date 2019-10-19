@@ -94,16 +94,28 @@ def rotate_image(image, angle, scale):
     return result
 
 
-def merge(img1, img2):
+def full_merge(img1, img2):
+    translation_params, angle = get_merge_parameters(img1, img2)
+    return merge(img1, img2, translation_params, angle)
+
+
+def merge(img1, img2, angle, translation_params):
+    x, y = translation_params
+    cv_img2 = cv2.cvtColor(np.array(img2), cv2.COLOR_RGB2GRAY)
+    img2_rotated = rotate_image(cv_img2, angle, 1)
+    shape = (img1.size[0] + y, img2.size[1] + x)
+    result_image = Image.new('RGB', shape)
+    result_image.paste(img1, (0, 0))
+    result_image.paste(img2, (y, x))
+    return result_image
+
+
+def get_merge_parameters(img1, img2):
     cv_img1 = cv2.cvtColor(np.array(img1), cv2.COLOR_RGB2GRAY)
     cv_img2 = cv2.cvtColor(np.array(img2), cv2.COLOR_RGB2GRAY)
     blurBorders(cv_img1)
     blurBorders(cv_img2)
     angle, scale = rotation(cv_img1, cv_img2)
     img2_rotated = rotate_image(cv_img2, angle, 1)
-    x, y = translation(cv_img1, img2_rotated)
-    shape = (img1.size[0] + y, img2.size[1] + x)
-    result_image = Image.new('RGB', shape)
-    result_image.paste(img1, (0, 0))
-    result_image.paste(img2, (y, x))
-    return result_image
+    return translation(cv_img1, img2_rotated), angle
+
