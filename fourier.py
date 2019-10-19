@@ -100,7 +100,7 @@ def merge(img1, img2):
     blurBorders(cv_img1)
     blurBorders(cv_img2)
     angle, scale = rotation(cv_img1, cv_img2)
-    img2_rotated = rotate_image(cv_img2, angle, scale)
+    img2_rotated = rotate_image(cv_img2, angle, 1)
     x, y = translation(cv_img1, img2_rotated)
     shape = (img1.size[0] + y, img2.size[1] + x)
     result_image = Image.new('RGB', shape)
