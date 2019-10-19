@@ -4,8 +4,8 @@ import cv2 as cv
 from matplotlib import pyplot as plt
 
 MIN_MATCH_COUNT = 10
-img1 = cv.imread('horse-Recovered.png', 0)  # queryImage
-img2 = cv.imread('horse-Recovered_scale.png', 0)  # trainImage
+img1 = cv.imread('test_images/IMG0406.jpg', 0)  # queryImage
+img2 = cv.imread('test_images/IMG0407.jpg', 0)  # trainImage
 # Initiate SIFT detector
 sift = cv.ORB_create()
 # find the keypoints and descriptors with SIFT

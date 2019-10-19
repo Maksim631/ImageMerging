@@ -9,7 +9,7 @@ GOOD_MATCH_PERCENT = 0.15
 
 
 def alignImages(im1, im2):
-    # Convert images to grayscale
+    # Convert test_images to grayscale
     im1Gray = cv2.cvtColor(im1, cv2.COLOR_BGR2GRAY)
     im2Gray = cv2.cvtColor(im2, cv2.COLOR_BGR2GRAY)
 
@@ -59,16 +59,16 @@ def concatImages(img1, img2, width, height):
 
 if __name__ == '__main__':
     # Read reference image
-    refFilename = "images/IMG0406.jpg"
+    refFilename = "test_images/IMG0406.jpg"
     print("Reading reference image : ", refFilename)
     imReference = cv2.imread(refFilename, cv2.IMREAD_COLOR)
 
     # Read image to be aligned
-    imFilename = "images/IMG0407.jpg"
+    imFilename = "test_images/IMG0407.jpg"
     print("Reading image to align : ", imFilename)
     im = cv2.imread(imFilename, cv2.IMREAD_COLOR)
 
-    print("Aligning images ...")
+    print("Aligning test_images ...")
     # Registered image will be resotred in imReg.
     # The estimated homography will be stored in h.
     imReg = alignImages(im, imReference)

@@ -3,7 +3,6 @@ import numpy as np
 import math
 import scipy.ndimage.interpolation as ndii
 from PIL import Image
-from matplotlib import pyplot
 from scipy.fftpack import ifftn, fftn
 
 
@@ -27,7 +26,6 @@ def blurBorders(input):
 
 
 def fourier(img):
-    rows, cols = img.shape
     f = np.fft.fft2(img)
     fshift = np.fft.fftshift(f)
     magnitude_spectrum = 20 * np.log(np.abs(fshift))
@@ -46,17 +44,14 @@ def phase_correlation(a, b):
 
 def translation(img1, img2):
     corr = phase_correlation(np.array(img1), np.array(img2))
-    pyplot.imshow(corr, cmap='gray')
-    pyplot.show()
-    corr[0,0] = 0
+    # pyplot.imshow(corr, cmap='gray')
+    # pyplot.show()
+    corr[0, 0] = 0
     result = np.where(corr == np.amax(corr))
-    return result[0], result [1]
-    # point = cv2.phaseCorrelate(np.float32(img1), np.float32(img2))
-    # result = [round(point[0][0]), round(point[0][1])]
-    # return result
+    return result[0][0], result[1][0]
 
 
-def logpolar(image, angles=None, radii=None):
+def log_polar(image, angles=None, radii=None):
     """Return log-polar transformed image and log base."""
     shape = image.shape
     center = shape[0] / 2, shape[1] / 2
@@ -68,7 +63,7 @@ def logpolar(image, angles=None, radii=None):
     theta.T[:] = np.linspace(0, np.pi, angles, endpoint=False) * -1.0
     # d = radii
     d = np.hypot(shape[0] - center[0], shape[1] - center[1])
-    log_base = 10.0 ** (math.log10(d) / (radii))
+    log_base = 10.0 ** (math.log10(d) / radii)
     radius = np.empty_like(theta)
     radius[:] = np.power(log_base,
                          np.arange(radii, dtype='float64')) - 1.0
@@ -83,38 +78,32 @@ def rotation(img1, img2):
     test1 = fourier(img1)
     test2 = fourier(img2)
 
-    img1Log, logBase = logpolar(test1)
-    img2Log, logBase = logpolar(test2)
-
-
-
-    cv2.imwrite('1.png', img1Log)
-    cv2.imwrite('3_2.png', test1)
-    cv2.imwrite('4_2.png', test2)
-    cv2.imwrite('2.png', img2Log)
-    cv2.destroyAllWindows()
-
-
-    translationPoint = translation(img1Log, img2Log)
-    translationPoint = [-translationPoint[0], -translationPoint[1]]
+    img1_log, log_base = log_polar(test1)
+    img2_log, log_base = log_polar(test2)
+    translation_point = translation(img1_log, img2_log)
+    translation_point = (-translation_point[0], -translation_point[1])
     size = max(img1.shape[0], img2.shape[1])
     base = math.exp(math.log(img1.shape[0] / 2) / size)
+    return (-180 * translation_point[1]) / size, pow(base, translation_point[0])
 
-    return (-180 * translationPoint[1]) / size, pow(base, translationPoint[0])
 
-img1Colour = Image.open('images/IMG0406.jpg')
-img2Colour = Image.open('images/IMG0407.jpg')
-img1Grey = cv2.imread(cv2.samples.findFile("images/IMG0406.jpg"), cv2.IMREAD_GRAYSCALE)
-img2Grey = cv2.imread(cv2.samples.findFile("images/IMG0407.jpg"), cv2.IMREAD_GRAYSCALE)
+def rotate_image(image, angle, scale):
+    image_center = tuple(np.array(image.shape[1::-1]) / 2)
+    rot_mat = cv2.getRotationMatrix2D(image_center, angle, scale)
+    result = cv2.warpAffine(image, rot_mat, image.shape[1::-1], flags=cv2.INTER_LINEAR)
+    return result
 
-blurBorders(img1Grey)
-blurBorders(img2Grey)
 
-x, y = translation(img1Grey, img2Grey)
-print(rotation(img1Grey, img2Grey))
-image = Image.new('RGB', (1500, 1500))
-image.paste(img1Colour, (0, 0))
-image.paste(img2Colour, (y, x))
-# img2Colour.paste(img1Colour, (x, y))
-pyplot.imshow(image)
-pyplot.show()
+def merge(img1, img2):
+    cv_img1 = cv2.cvtColor(np.array(img1), cv2.COLOR_RGB2GRAY)
+    cv_img2 = cv2.cvtColor(np.array(img2), cv2.COLOR_RGB2GRAY)
+    blurBorders(cv_img1)
+    blurBorders(cv_img2)
+    angle, scale = rotation(cv_img1, cv_img2)
+    img2_rotated = rotate_image(cv_img2, angle, scale)
+    x, y = translation(cv_img1, img2_rotated)
+    shape = (img1.size[0] + y, img2.size[1] + x)
+    result_image = Image.new('RGB', shape)
+    result_image.paste(img1, (0, 0))
+    result_image.paste(img2, (y, x))
+    return result_image
