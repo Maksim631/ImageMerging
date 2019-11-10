@@ -4,9 +4,7 @@ import cv2
 import numpy as np
 import scipy.ndimage.interpolation as ndii
 from PIL import Image
-from matplotlib import pyplot
-# from skimage.feature import register_translation
-
+from skimage.feature import register_translation
 
 
 def blur_single_border(x, y, w, h, image):
@@ -35,28 +33,9 @@ def fourier(img):
     return magnitude_spectrum
 
 
-def phase_correlation(a, b):
-    G_a = np.fft.fft2(a)
-    G_b = np.fft.fft2(b)
-    conj_b = np.ma.conjugate(G_b)
-    R = G_a * conj_b
-    R2 = G_a * G_b
-    R /= np.absolute(R2)
-    r = np.fft.ifft2(R).real
-    return r
-
-
 def translation(img1, img2):
-    corr = phase_correlation(np.array(img1), np.array(img2))
-    pyplot.imshow(corr, cmap='gray')
-    pyplot.show()
-    # corr[0, 0] = 0
-    # blur_borders(corr)
-    print(np.amax(corr))
-    # result = np.where(corr == np.amax(corr), corr.shape[0], corr.shape[1])
-    result = np.unravel_index(corr.argmax(), corr.shape)
-    print((result[0], result[1]))
-    return result[0], result[1]
+    a = register_translation(img1, img2)
+    return int(a[0][0]), int(a[0][1])
 
 
 def log_polar(image, angles=None, radii=None):
@@ -102,11 +81,6 @@ def rotate_image(image, angle, scale):
     return result
 
 
-def merge(img1, img2):
-    translation_params, angle = get_merge_parameters(img1, img2)
-    return merge_with_parameters(img1, img2, translation_params, angle)
-
-
 def merge_with_parameters(img1, img2, translation_params):
     x, y = translation_params
     cv_img2 = cv2.cvtColor(np.array(img2), cv2.COLOR_RGB2GRAY)
@@ -123,6 +97,6 @@ def get_merge_parameters(img1, img2):
     cv_img2 = cv2.cvtColor(np.array(img2), cv2.COLOR_RGB2GRAY)
     blur_borders(cv_img1)
     blur_borders(cv_img2)
-    # angle, scale = rotation(cv_img1, cv_img2)
-    # img2_rotated = rotate_image(cv_img2, angle, 1)
-    return translation(cv_img1, cv_img2)
+    angle, scale = rotation(cv_img1, cv_img2)
+    img2_rotated = rotate_image(cv_img2, angle, scale)
+    return translation(cv_img1, img2_rotated)

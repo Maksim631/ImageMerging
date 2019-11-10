@@ -10,7 +10,7 @@ i = 406
 
 result = Image.open('images/IMG0' + str(i) + '.jpg')
 
-while i < 410:
+while i < 524:
     img1 = Image.open('images/IMG0' + str(i) + '.jpg')
     img2 = Image.open('images/IMG0' + str(i + 1) + '.jpg')
     translations.append(get_merge_parameters(img1, img2))
@@ -19,7 +19,7 @@ while i < 410:
 
 i = 407
 index = 0
-while i < 411:
+while i < 525:
     current_translation_x += translations[index][0]
     current_translation_y += translations[index][1]
     result = merge_with_parameters(result, Image.open('images/IMG0' + str(i) + '.jpg'),
