@@ -1,12 +1,13 @@
+import math
+
 import cv2
 import numpy as np
-import math
 import scipy.ndimage.interpolation as ndii
 from PIL import Image
-from scipy.fftpack import ifftn, fftn
+from skimage.feature import register_translation
 
 
-def blurSingleBorder(x, y, w, h, image):
+def blur_single_border(x, y, w, h, image):
     # cv2.rectangle(image, (x, y), (x + w, y + h), (255, 255, 0), 5)
     sub_face = image[y:y + h, x:x + w]
     # apply a gaussian blur on this new recangle image
@@ -15,14 +16,14 @@ def blurSingleBorder(x, y, w, h, image):
     image[y:y + sub_face.shape[0], x:x + sub_face.shape[1]] = sub_face
 
 
-def blurBorders(input):
+def blur_borders(input):
     sizeR = input.shape[0]
     sizeC = input.shape[1]
     blurSize = 50
-    blurSingleBorder(0, 0, sizeR, blurSize, input)
-    blurSingleBorder(0, 0, blurSize, sizeR, input)
-    blurSingleBorder(0, sizeR - blurSize, sizeC, blurSize, input)
-    blurSingleBorder(sizeC - blurSize, 0, blurSize, sizeR, input)
+    blur_single_border(0, 0, sizeR, blurSize, input)
+    blur_single_border(0, 0, blurSize, sizeR, input)
+    blur_single_border(0, sizeR - blurSize, sizeC, blurSize, input)
+    blur_single_border(sizeC - blurSize, 0, blurSize, sizeR, input)
 
 
 def fourier(img):
@@ -32,23 +33,9 @@ def fourier(img):
     return magnitude_spectrum
 
 
-def phase_correlation(a, b):
-    G_a = np.fft.fft2(a)
-    G_b = np.fft.fft2(b)
-    conj_b = np.ma.conjugate(G_b)
-    R = G_a * conj_b
-    R /= np.absolute(R)
-    r = np.fft.ifft2(R).real
-    return r
-
-
 def translation(img1, img2):
-    corr = phase_correlation(np.array(img1), np.array(img2))
-    # pyplot.imshow(corr, cmap='gray')
-    # pyplot.show()
-    corr[0, 0] = 0
-    result = np.where(corr == np.amax(corr))
-    return result[0][0], result[1][0]
+    a = register_translation(img1, img2)
+    return int(a[0][0]), int(a[0][1])
 
 
 def log_polar(image, angles=None, radii=None):
@@ -94,16 +81,22 @@ def rotate_image(image, angle, scale):
     return result
 
 
-def merge(img1, img2):
-    cv_img1 = cv2.cvtColor(np.array(img1), cv2.COLOR_RGB2GRAY)
+def merge_with_parameters(img1, img2, translation_params):
+    x, y = translation_params
     cv_img2 = cv2.cvtColor(np.array(img2), cv2.COLOR_RGB2GRAY)
-    blurBorders(cv_img1)
-    blurBorders(cv_img2)
-    angle, scale = rotation(cv_img1, cv_img2)
-    img2_rotated = rotate_image(cv_img2, angle, 1)
-    x, y = translation(cv_img1, img2_rotated)
-    shape = (img1.size[0] + y, img2.size[1] + x)
+    # img2_rotated = rotate_image(cv_img2, angle, 1)
+    shape = (img2.size[0] + y, img2.size[1] + x)
     result_image = Image.new('RGB', shape)
     result_image.paste(img1, (0, 0))
     result_image.paste(img2, (y, x))
     return result_image
+
+
+def get_merge_parameters(img1, img2):
+    cv_img1 = cv2.cvtColor(np.array(img1), cv2.COLOR_RGB2GRAY)
+    cv_img2 = cv2.cvtColor(np.array(img2), cv2.COLOR_RGB2GRAY)
+    blur_borders(cv_img1)
+    blur_borders(cv_img2)
+    angle, scale = rotation(cv_img1, cv_img2)
+    img2_rotated = rotate_image(cv_img2, angle, scale)
+    return translation(cv_img1, img2_rotated)
