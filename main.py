@@ -1,30 +1,9 @@
 from matplotlib import pyplot
 from PIL import Image
-from fourier import get_merge_parameters, merge_with_parameters
+from fourier import get_merge_parameters, merge_with_parameters, merge
 
-translations = []
-current_translation_x = 0
-current_translation_y = 0
-
-i = 406
-
-result = Image.open('images/IMG0' + str(i) + '.jpg')
-
-while i < 524:
-    img1 = Image.open('images/IMG0' + str(i) + '.jpg')
-    img2 = Image.open('images/IMG0' + str(i + 1) + '.jpg')
-    translations.append(get_merge_parameters(img1, img2))
-    print(i)
-    i += 1
-
-i = 407
-index = 0
-while i < 525:
-    current_translation_x += translations[index][0]
-    current_translation_y += translations[index][1]
-    result = merge_with_parameters(result, Image.open('images/IMG0' + str(i) + '.jpg'),
-                                   (current_translation_x, current_translation_y))
-    index += 1
-    i += 1
+img1 = Image.open('sun/1_4.jpg')
+img2 = Image.open('sun/2_4.jpg')
+result = merge(img1, img2)
 pyplot.imshow(result)
 pyplot.show()

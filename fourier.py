@@ -100,3 +100,7 @@ def get_merge_parameters(img1, img2):
     angle, scale = rotation(cv_img1, cv_img2)
     img2_rotated = rotate_image(cv_img2, angle, scale)
     return translation(cv_img1, img2_rotated)
+
+
+def merge(img1, img2):
+    return merge_with_parameters(img1, img2, get_merge_parameters(img1, img2))
