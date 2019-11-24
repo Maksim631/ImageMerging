@@ -1,8 +1,11 @@
 from __future__ import print_function
 import cv2
 import numpy as np
+from PIL import Image
 
 from matplotlib import pyplot as plt
+
+from fourier import merge_with_parameters
 
 MAX_FEATURES = 500
 GOOD_MATCH_PERCENT = 0.15
@@ -31,7 +34,7 @@ def alignImages(im1, im2):
 
     # Draw top matches
     imMatches = cv2.drawMatches(im1, keypoints1, im2, keypoints2, matches, None)
-    cv2.imwrite("matches.jpg", imMatches)
+    # cv2.imwrite("matches.jpg", imMatches)
 
     # Extract location of good matches
     points1 = np.zeros((len(matches), 2), dtype=np.float32)
@@ -46,9 +49,11 @@ def alignImages(im1, im2):
 
     # Use homography
     height, width, channels = im2.shape
-    im1Reg = cv2.warpPerspective(im1, h, (width+200, height+200))
+    return h
+    # print(translation)
+    # return cv2.warpPerspective(im1, h, (translation[0], translation[1]))
 
-    return concatImages(im2, im1Reg, width, height)
+    # return concatImages(im2, im1Reg, width, height)
     # return im1Reg, h
 
 
@@ -58,29 +63,34 @@ def concatImages(img1, img2, width, height):
 
 
 if __name__ == '__main__':
-    # Read reference image
-    refFilename = "test_images/IMG0406.jpg"
-    print("Reading reference image : ", refFilename)
-    imReference = cv2.imread(refFilename, cv2.IMREAD_COLOR)
+    translations = []
 
-    # Read image to be aligned
-    imFilename = "test_images/IMG0407.jpg"
-    print("Reading image to align : ", imFilename)
-    im = cv2.imread(imFilename, cv2.IMREAD_COLOR)
+    i = 406
+    print("Reading reference image : ", i)
+    # imReg = cv2.imread("images/IMG0" + str(i) + ".jpg", cv2.IMREAD_COLOR)
 
-    print("Aligning test_images ...")
-    # Registered image will be resotred in imReg.
-    # The estimated homography will be stored in h.
-    imReg = alignImages(im, imReference)
+    while i < 407:
+        imReg = cv2.imread("images/IMG0" + str(i) + ".jpg", cv2.IMREAD_COLOR)
+        i += 1
+        imFilename = "images/IMG0" + str(i) + ".jpg"
+        print("Reading image to align : ", imFilename)
+        im = cv2.imread(imFilename, cv2.IMREAD_COLOR)
+        translations.append(alignImages(im, imReg))
 
-    # img3 = np.concatenate((imReference, imReg), axis=1)
-    plt.imshow(imReg), plt.show()
-    # Write aligned image to disk.
+    result = Image.open('images/IMG0' + str(406) + '.jpg')
+    height, width = result.size
+    current_translation_x = 0
+    current_translation_y = 0
+    i = 407
+    index = 0
+    while i < 408:
+        current_translation_x += int(translations[index][0][2])
+        current_translation_y += int(translations[index][1][2])
+        result = merge_with_parameters(result, Image.open('images/IMG0' + str(i) + '.jpg'),
+                                       (current_translation_x, current_translation_y))
+        index += 1
+        i += 1
+    plt.imshow(result)
+    plt.show()
 
-    # Print estimated homography
-    # print("Estimated homography : \n", h)
-    rot = []
-    scale = []
-    trans = []
 
-    print(rot)
