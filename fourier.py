@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 import scipy.ndimage.interpolation as ndii
 from PIL import Image
+from matplotlib import pyplot
 from skimage.feature import register_translation
 
 
@@ -11,7 +12,7 @@ def blur_single_border(x, y, w, h, image):
     # cv2.rectangle(image, (x, y), (x + w, y + h), (255, 255, 0), 5)
     sub_face = image[y:y + h, x:x + w]
     # apply a gaussian blur on this new recangle image
-    sub_face = cv2.GaussianBlur(sub_face, (23, 23), 30)
+    sub_face = cv2.GaussianBlur(sub_face, (53,53), 100)
     # merge this blurry rectangle to our final image
     image[y:y + sub_face.shape[0], x:x + sub_face.shape[1]] = sub_face
 
@@ -29,7 +30,7 @@ def blur_borders(input):
 def fourier(img):
     f = np.fft.fft2(img)
     fshift = np.fft.fftshift(f)
-    magnitude_spectrum = 20 * np.log(np.abs(fshift))
+    magnitude_spectrum = np.log(np.abs(fshift))
     return magnitude_spectrum
 
 
@@ -68,6 +69,7 @@ def rotation(img1, img2):
     img1_log, log_base = log_polar(test1)
     img2_log, log_base = log_polar(test2)
     translation_point = translation(img1_log, img2_log)
+    print(translation_point)
     translation_point = (-translation_point[0], -translation_point[1])
     size = max(img1.shape[0], img2.shape[1])
     base = math.exp(math.log(img1.shape[0] / 2) / size)
@@ -82,13 +84,32 @@ def rotate_image(image, angle, scale):
 
 
 def merge_with_parameters(img1, img2, translation_params):
-    x, y = translation_params
-    cv_img2 = cv2.cvtColor(np.array(img2), cv2.COLOR_RGB2GRAY)
-    # img2_rotated = rotate_image(cv_img2, angle, 1)
-    shape = (img2.size[0] + y, img2.size[1] + x)
-    result_image = Image.new('RGB', shape)
-    result_image.paste(img1, (0, 0))
-    result_image.paste(img2, (y, x))
+    x, y, scale, angle = translation_params
+    print((x, y))
+    cv_img2 = np.asarray(img2)
+    img2_rotated = rotate_image(cv_img2, angle, scale)
+    im_pil = Image.fromarray(img2_rotated)
+    if x < 0 < y:
+        shape = (img2.size[0] + y, 2 * img2.size[1] + x)
+        result_image = Image.new('RGB', shape)
+        result_image.paste(img1, (0, int(abs(x))))
+        result_image.paste(im_pil, (y, 0))
+    if x > 0 > y:
+        print("asd")
+        shape = (2*img2.size[0] + int(abs(y)), 2*img2.size[1] + x)
+        result_image = Image.new('RGB', shape)
+        result_image.paste(img1, (int(abs(y)), 0))
+        result_image.paste(im_pil, (0, x))
+    if x < 0 and y < 0:
+        shape = (img2.size[0] + x, img2.size[1] + int(abs(y)))
+        result_image = Image.new('RGB', shape)
+        result_image.paste(im_pil, (y, x))
+        result_image.paste(img1, (0, 0))
+    if x >= 0 and y > 0:
+        shape = (img2.size[0] + y, img2.size[1] + x)
+        result_image = Image.new('RGB', shape)
+        result_image.paste(img1, (0, 0))
+        result_image.paste(im_pil, (y, x))
     return result_image
 
 
@@ -99,4 +120,4 @@ def get_merge_parameters(img1, img2):
     blur_borders(cv_img2)
     angle, scale = rotation(cv_img1, cv_img2)
     img2_rotated = rotate_image(cv_img2, angle, scale)
-    return translation(cv_img1, img2_rotated)
+    return translation(cv_img1, img2_rotated), scale, angle
