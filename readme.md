@@ -8,3 +8,6 @@
  
  # 2nd example from drone
  ![Drone](./results/Drone_2_array.png)
+ 
+ # Drone with high rotation
+ ![Rotation](./results/Drone_rotation.png)

@@ -4,7 +4,6 @@ import cv2
 import numpy as np
 import scipy.ndimage.interpolation as ndii
 from PIL import Image
-from matplotlib import pyplot
 from skimage.feature import register_translation
 
 
@@ -12,7 +11,7 @@ def blur_single_border(x, y, w, h, image):
     # cv2.rectangle(image, (x, y), (x + w, y + h), (255, 255, 0), 5)
     sub_face = image[y:y + h, x:x + w]
     # apply a gaussian blur on this new recangle image
-    sub_face = cv2.GaussianBlur(sub_face, (53,53), 100)
+    sub_face = cv2.GaussianBlur(sub_face, (23, 23), 30)
     # merge this blurry rectangle to our final image
     image[y:y + sub_face.shape[0], x:x + sub_face.shape[1]] = sub_face
 
@@ -25,13 +24,6 @@ def blur_borders(input):
     blur_single_border(0, 0, blurSize, sizeR, input)
     blur_single_border(0, sizeR - blurSize, sizeC, blurSize, input)
     blur_single_border(sizeC - blurSize, 0, blurSize, sizeR, input)
-
-
-def fourier(img):
-    f = np.fft.fft2(img)
-    fshift = np.fft.fftshift(f)
-    magnitude_spectrum = np.log(np.abs(fshift))
-    return magnitude_spectrum
 
 
 def translation(img1, img2):
@@ -62,21 +54,55 @@ def log_polar(image, angles=None, radii=None):
     return output, log_base
 
 
-def rotation(img1, img2):
-    test1 = fourier(img1)
-    test2 = fourier(img2)
-
-    img1_log, log_base = log_polar(test1)
-    img2_log, log_base = log_polar(test2)
-    translation_point = translation(img1_log, img2_log)
-    print(translation_point)
-    translation_point = (-translation_point[0], -translation_point[1])
-    size = max(img1.shape[0], img2.shape[1])
-    base = math.exp(math.log(img1.shape[0] / 2) / size)
-    return (-180 * translation_point[1]) / size, pow(base, translation_point[0])
+def highpass(shape):
+    x = np.outer(
+        np.cos(np.linspace(-math.pi / 2., math.pi / 2., shape[0])),
+        np.cos(np.linspace(-math.pi / 2., math.pi / 2., shape[1])))
+    return (1.0 - x) * (2.0 - x)
 
 
-def rotate_image(image, angle, scale):
+def rotation(im0, im1):
+    f0 = np.fft.fftshift(abs(np.fft.fft2(im0)))
+    f1 = np.fft.fftshift(abs(np.fft.fft2(im1)))
+
+    h = highpass(f0.shape)
+    f0 *= h
+    f1 *= h
+    del h
+
+    f0, log_base = log_polar(f0)
+    f1, log_base = log_polar(f1)
+
+    f0 = np.fft.fft2(f0)
+    f1 = np.fft.fft2(f1)
+    r0 = abs(f0) * abs(f1)
+    ir = abs(np.fft.ifft2((f0 * f1.conjugate()) / r0))
+    i0, i1 = np.unravel_index(np.argmax(ir), ir.shape)
+    angle = 180.0 * i0 / ir.shape[0]
+    scale = log_base ** i1
+
+    if scale > 1.8:
+        ir = abs(np.fft.ifft2((f1 * f0.conjugate()) / r0))
+        i0, i1 = np.unravel_index(np.argmax(ir), ir.shape)
+        angle = -180.0 * i0 / ir.shape[0]
+        scale = 1.0 / (log_base ** i1)
+        if scale > 1.8:
+            raise ValueError('Images are not compatible. Scale change > 1.8')
+
+    if angle < -90.0:
+        angle += 180.0
+    elif angle > 90.0:
+        angle -= 180.0
+    return angle, scale
+
+
+def simple_rotate(image, angle, scale):
+    image = ndii.zoom(image, 1.0 / scale)
+    image = ndii.rotate(image, angle)
+    return image
+
+
+def affine_rotate(image, angle, scale):
     image_center = tuple(np.array(image.shape[1::-1]) / 2)
     rot_mat = cv2.getRotationMatrix2D(image_center, angle, scale)
     result = cv2.warpAffine(image, rot_mat, image.shape[1::-1], flags=cv2.INTER_LINEAR)
@@ -85,39 +111,37 @@ def rotate_image(image, angle, scale):
 
 def merge_with_parameters(img1, img2, translation_params):
     x, y, scale, angle = translation_params
-    print((x, y))
-    cv_img2 = np.asarray(img2)
-    img2_rotated = rotate_image(cv_img2, angle, scale)
-    im_pil = Image.fromarray(img2_rotated)
-    if x < 0 < y:
+    img2 = simple_rotate(img2, angle, scale)
+    img2 = Image.fromarray(img2)
+    if x <= 0 < y:
         shape = (img2.size[0] + y, 2 * img2.size[1] + x)
         result_image = Image.new('RGB', shape)
         result_image.paste(img1, (0, int(abs(x))))
-        result_image.paste(im_pil, (y, 0))
-    if x > 0 > y:
-        print("asd")
-        shape = (2*img2.size[0] + int(abs(y)), 2*img2.size[1] + x)
+        result_image.paste(img2, (y, 0))
+    if x >= 0 > y:
+        shape = (2 * img1.size[0] + int(abs(y)), 2 * img1.size[1] + x)
         result_image = Image.new('RGB', shape)
+        result_image.paste(img2, (0, x))
         result_image.paste(img1, (int(abs(y)), 0))
-        result_image.paste(im_pil, (0, x))
     if x < 0 and y < 0:
         shape = (img2.size[0] + x, img2.size[1] + int(abs(y)))
         result_image = Image.new('RGB', shape)
-        result_image.paste(im_pil, (y, x))
+        result_image.paste(img2, (y, x))
         result_image.paste(img1, (0, 0))
     if x >= 0 and y > 0:
-        shape = (img2.size[0] + y, img2.size[1] + x)
+        shape = (img1.size[0] + x, img1.size[1] + y)
         result_image = Image.new('RGB', shape)
+        result_image.paste(img2, (x, y))
         result_image.paste(img1, (0, 0))
-        result_image.paste(im_pil, (y, x))
     return result_image
 
 
-def get_merge_parameters(img1, img2):
-    cv_img1 = cv2.cvtColor(np.array(img1), cv2.COLOR_RGB2GRAY)
-    cv_img2 = cv2.cvtColor(np.array(img2), cv2.COLOR_RGB2GRAY)
+def get_merge_parameters(cv_img1, cv_img2):
+    # cv_img1 = cv2.cvtColor(np.array(img1), cv2.COLOR_RGB2GRAY)
+    # cv_img2 = cv2.cvtColor(np.array(img2), cv2.COLOR_RGB2GRAY)
+
     blur_borders(cv_img1)
     blur_borders(cv_img2)
     angle, scale = rotation(cv_img1, cv_img2)
-    img2_rotated = rotate_image(cv_img2, angle, scale)
+    img2_rotated = affine_rotate(cv_img2, angle, scale)
     return translation(cv_img1, img2_rotated), scale, angle
