@@ -111,7 +111,7 @@ def affine_rotate(image, angle, scale):
 
 def merge_with_parameters(img1, img2, translation_params):
     x, y, scale, angle = translation_params
-
+    print(translation_params)
     img2 = simple_rotate(img2, angle, scale)
     img2 = Image.fromarray(img2)
     # img1 = Image.fromarray(img1)
