@@ -111,8 +111,12 @@ def affine_rotate(image, angle, scale):
 
 def merge_with_parameters(img1, img2, translation_params):
     x, y, scale, angle = translation_params
+
     img2 = simple_rotate(img2, angle, scale)
     img2 = Image.fromarray(img2)
+    # img1 = Image.fromarray(img1)
+    img1.putalpha(128)
+    img2.putalpha(128)
     if x <= 0 < y:
         shape = (img2.size[0] + y, 2 * img2.size[1] + x)
         result_image = Image.new('RGB', shape)
@@ -128,11 +132,13 @@ def merge_with_parameters(img1, img2, translation_params):
         result_image = Image.new('RGB', shape)
         result_image.paste(img2, (y, x))
         result_image.paste(img1, (0, 0))
-    if x >= 0 and y > 0:
-        shape = (img1.size[0] + x, img1.size[1] + y)
+    if x >= 0 and y >= 0:
+        shape = (img1.size[0] + y, img1.size[1] + x)
         result_image = Image.new('RGB', shape)
-        result_image.paste(img2, (x, y))
-        result_image.paste(img1, (0, 0))
+        # result_image.putalpha(128)
+        mask = Image.new('RGBA', (img1.size[0], img1.size[1]), (0, 0, 0, 150))
+        result_image.paste(img1, (0, 0), mask=mask)
+        result_image.paste(img2, (y, x), mask=mask)
     return result_image
 
 
