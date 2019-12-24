@@ -2,14 +2,13 @@ import cv2
 from matplotlib import pyplot
 from PIL import Image
 from fourier import get_merge_parameters, merge_with_parameters
-from heatmap import heatmap, annotate_heatmap
 import numpy
 
-START_INDEX = 2
-END_INDEX = 3
+START_INDEX = 5
+END_INDEX = 6
 
-WINDOW_WIDTH = int(891 / 9)
-WINDOW_HEIGHT = int(960 / 5)
+WINDOW_WIDTH = int((1290 - 140) / 10)
+WINDOW_HEIGHT = int((960) / 10)
 
 WINDOW_SIZE = (WINDOW_WIDTH, WINDOW_HEIGHT)
 
@@ -30,23 +29,30 @@ current_translation_y = 0
 i = START_INDEX
 
 result = Image.open('box/' + get_str_index(i) + '.jpg')
-shape = (891, 960)
+
+shape = (1290 - 140, 960)
 squares = numpy.zeros(shape)
-# result_image.putalpha(128)
-mask = Image.new('RGBA', shape, (0, 0, 0, 150))
 
 
 def get_value(translation_params):
     translation, scale, angle = translation_params
-    return int(translation[0] ** 2 + translation[1] ** 2 + scale ** 2 + (angle/90) ** 2)
+    return int(abs(translation[0]) + abs(translation[1]) + abs(scale) * 10 + abs(angle)) **2
 
+
+while i < END_INDEX:
+    picture1 = cv2.imread('box/' + get_str_index(i) + '.jpg', cv2.IMREAD_GRAYSCALE)
+    picture2 = cv2.imread('box/' + get_str_index(i + 1) + '.jpg', cv2.IMREAD_GRAYSCALE)
+    translations.append(get_merge_parameters(picture1, picture2))
+    print(translations[0])
+    print(i)
+    i += 1
 
 for i in range(9):
-    for j in range(5):
-        picture1 = cv2.imread('box/2.jpg', cv2.IMREAD_GRAYSCALE)
-        picture2 = cv2.imread('box/3.jpg', cv2.IMREAD_GRAYSCALE)
-        picture1 = picture1[389 + i * WINDOW_WIDTH:389 + (i + 1) * WINDOW_WIDTH,
-                   j * WINDOW_HEIGHT: (j + 1) * WINDOW_HEIGHT]
+    for j in range(9):
+        picture1 = cv2.imread('box/5.jpg', cv2.IMREAD_GRAYSCALE)
+        picture2 = cv2.imread('box/6.jpg', cv2.IMREAD_GRAYSCALE)
+        picture1 = picture1[i * WINDOW_WIDTH: (i + 1) * WINDOW_WIDTH,
+                   151+ j * WINDOW_HEIGHT:  151+ (j + 1) * WINDOW_HEIGHT]
         picture2 = picture2[i * WINDOW_WIDTH:(i + 1) * WINDOW_WIDTH, j * WINDOW_HEIGHT: (j + 1) * WINDOW_HEIGHT]
         cv2.imwrite("./res/First" + str(i) + "j=" + str(j) + ".jpg", picture1)
         cv2.imwrite("./res/Second" + str(i) + "j=" + str(j) + ".jpg", picture2)
@@ -58,6 +64,9 @@ for i in range(9):
 pyplot.imshow(squares, cmap='hot', interpolation='nearest')
 pyplot.colorbar()
 pyplot.show()
+
+# Used to merge images
+#
 # i = START_INDEX + 1
 # index = 0
 # while i < END_INDEX + 1:

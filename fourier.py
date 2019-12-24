@@ -19,7 +19,7 @@ def blur_single_border(x, y, w, h, image):
 def blur_borders(input):
     sizeR = input.shape[0]
     sizeC = input.shape[1]
-    blurSize = 50
+    blurSize = 10
     blur_single_border(0, 0, sizeR, blurSize, input)
     blur_single_border(0, 0, blurSize, sizeR, input)
     blur_single_border(0, sizeR - blurSize, sizeC, blurSize, input)
@@ -117,16 +117,22 @@ def merge_with_parameters(img1, img2, translation_params):
     # img1 = Image.fromarray(img1)
     img1.putalpha(128)
     img2.putalpha(128)
+
     if x <= 0 < y:
-        shape = (img2.size[0] + y, 2 * img2.size[1] + x)
+        x = int(abs(x))
+        shape = (img2.size[0] - y,  img2.size[1] + x)
         result_image = Image.new('RGB', shape)
-        result_image.paste(img1, (0, int(abs(x))))
-        result_image.paste(img2, (y, 0))
+        result_image.paste(img2, (0, -x))
+        result_image.paste(img1, (y, 0))
+        return result_image
     if x >= 0 > y:
-        shape = (2 * img1.size[0] + int(abs(y)), 2 * img1.size[1] + x)
+        shape = (img1.size[0] + int(abs(y)),  img1.size[1] + int(abs(x)))
         result_image = Image.new('RGB', shape)
-        result_image.paste(img2, (0, x))
-        result_image.paste(img1, (int(abs(y)), 0))
+        mask = Image.new('RGBA', (img1.size[0], img1.size[1]), (0, 0, 0, 128))
+        mask2 = Image.new('RGBA', (img2.size[0], img2.size[1]), (0, 0, 0, 128))
+        result_image.paste(img2, (0, x), mask=mask2)
+
+        result_image.paste(img1, (int(abs(y)), 0), mask=mask)
     if x < 0 and y < 0:
         shape = (img2.size[0] + x, img2.size[1] + int(abs(y)))
         result_image = Image.new('RGB', shape)
@@ -137,8 +143,10 @@ def merge_with_parameters(img1, img2, translation_params):
         result_image = Image.new('RGB', shape)
         # result_image.putalpha(128)
         mask = Image.new('RGBA', (img1.size[0], img1.size[1]), (0, 0, 0, 150))
+        mask2 = Image.new('RGBA', (img2.size[0], img2.size[1]), (0, 0, 0, 150))
+        result_image.paste(img2, (y, x), mask=mask2)
         result_image.paste(img1, (0, 0), mask=mask)
-        result_image.paste(img2, (y, x), mask=mask)
+
     return result_image
 
 
