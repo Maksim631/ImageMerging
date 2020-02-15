@@ -1,0 +1,10 @@
+**.jpg
+**.png
+**.jpeg
+venv
+.idea
+.vscode
+
+**.txt
+**.db
+**.pyc
