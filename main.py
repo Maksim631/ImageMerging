@@ -1,10 +1,7 @@
 import cv2
 from matplotlib import pyplot
 from PIL import Image
-from fourier import get_merge_parameters, merge_with_parameters
-from utils import noisy
-import numpy as np
-
+from snitching.fourier import get_merge_parameters, merge_with_parameters
 
 START_INDEX = 6
 END_INDEX = 7

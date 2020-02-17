@@ -1,12 +1,10 @@
 import numpy as np
 import cv2
 import math
-from skimage.util import random_noise
 from scipy.signal import convolve2d
-from skimage.restoration import estimate_sigma
 
-from feature import find_homograph
-from fourier import get_merge_parameters
+from snitching.feature import find_homograph
+from snitching.fourier import get_merge_parameters
 
 
 def noisy(image, sigma):
