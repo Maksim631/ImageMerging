@@ -14,7 +14,9 @@ jobs:
       with:
         python-version: 3.8
     - name: Go to bot folder
-      run: cd ./image_merging_bot
+      run:
+        cd ./image_merging_bot
+        ls
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
