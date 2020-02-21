@@ -21,3 +21,7 @@ var/
 
 # Serverless directories
 .serverless
+
+*.jpeg
+*.png
+*.jpg

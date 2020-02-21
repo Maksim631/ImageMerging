@@ -13,13 +13,7 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: 3.8
-    - name: Go to bot folder
-      run:
-        cd ./image_merging_bot
-    - name: check folder
-      run: ls
-    - name: Install dependencies
-      run: |
+      run: cd ./image_merging_bot |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Configure AWS credentials
