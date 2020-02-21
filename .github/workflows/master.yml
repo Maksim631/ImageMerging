@@ -13,22 +13,22 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: 3.8
+    - name: Go to bot folder
+      run: cd ./image_merging_bot
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
     - name: Use Node.js
-        uses: actions/setup-node@v1
-        with:
+      uses: actions/setup-node@v1
+      with:
           node-version: 10.x
-    - name: Go to bot folder
-      run: cd ./image_merging_bot
     - name: Install npm packages
       run: npm install
     - name: Deploy to Amazon
