@@ -16,7 +16,8 @@ jobs:
     - name: Go to bot folder
       run:
         cd ./image_merging_bot
-        ls
+    - name: check folder
+      run: ls
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
