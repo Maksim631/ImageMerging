@@ -3,6 +3,8 @@ import cv2
 import numpy as np
 
 from matplotlib import pyplot as plt
+from skimage.metrics import structural_similarity as ssim
+from skimage.restoration import estimate_sigma
 
 MAX_FEATURES = 500
 GOOD_MATCH_PERCENT = 0.15
@@ -45,11 +47,18 @@ def find_homograph(img1, img2):
     h, mask = cv2.findHomography(points1, points2, cv2.RANSAC)
     return h
 
+def noisy(image, sigma):
+    gauss = np.random.normal(0, sigma, image.size)
+    gauss = gauss.reshape(image.shape).astype('uint8')
+    # Add the Gaussian noise to the image
+    img_gauss = cv2.add(image, gauss)
+    return img_gauss
+
 
 def merge_images(img1, img2, homograph):
     # Use homography
-    height, width, channels = img2.shape
-    im1Reg = cv2.warpPerspective(img1, homograph, (width + 200, height + 200))
+    height, width = img2.shape
+    im1Reg = cv2.warpPerspective(img1, homograph, (width + 100, height + 100))
 
     return concatImages(img2, im1Reg, width, height)
     # return im1Reg, h
@@ -60,20 +69,26 @@ def concatImages(img1, img2, width, height):
     return img2
 
 
-# if __name__ == '__main__':
-#     # Read reference image
-#     refFilename = "test_images/IMG0406.jpg"
-#     print("Reading reference image : ", refFilename)
-#     imReference = cv2.imread(refFilename, cv2.IMREAD_COLOR)
-#
-#     # Read image to be aligned
-#     imFilename = "test_images/IMG0407.jpg"
-#     print("Reading image to align : ", imFilename)
-#     im = cv2.imread(imFilename, cv2.IMREAD_COLOR)
-#
-#     print("Aligning test_images ...")
-#     # Registered image will be resotred in imReg.
-#     # The estimated homography will be stored in h.
-#     h = find_homography(im, imReference)
-#     imReg = merge_images(im, imReference, h)
-#     print(h)
+if __name__ == '__main__':
+    # Read reference image
+    # img1 = "1_4.jpg"
+    # print("Reading reference image : ", refFilename)
+    img1 = cv2.imread("1_4.jpg", cv2.IMREAD_GRAYSCALE)
+    img2 = cv2.imread("2_4.jpg", cv2.IMREAD_GRAYSCALE)
+    # width, height, ch = imReference.shape
+
+    # img1 = imReference[:width - 100, : height - 100]
+    # img2 = imReference[99:width - 1, 99: height - 1]
+    # img1 = cv2.cvtColor(np.array(noisy(img1, 0)), cv2.COLOR_RGB2GRAY)
+    # img2 = cv2.cvtColor(np.array(noisy(img2, 0)), cv2.COLOR_RGB2GRAY)
+    print("ssim: " + str(ssim(img1, img2)))
+    # Read image to be aligned
+    print(estimate_sigma(img1) + estimate_sigma(img2))
+
+    print("Aligning test_images ...")
+    # Registered image will be resotred in imReg.
+    # The estimated homography will be stored in h.
+    # h = find_homograph(img2, img1)
+    # imReg = merge_images(img2, img1, h)
+    # cv2.imwrite("out.png", imReg)
+    # print(h)
