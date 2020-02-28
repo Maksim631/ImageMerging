@@ -21,9 +21,6 @@ DATA = {
     'url': aws_url
 }
 
-requests.post(BASE_URL, DATA)
+print(requests.post(BASE_URL, DATA))
 
-# curl --request POST --url
-# https://api.telegram.org/bot459903168:APHruyw7ZFj5qOJmJGeYEmfFJxil-z5uLS8/setWebhook
-# --header 'content-type: application/json' --data
-# '{"url": "https://u3ir5tjcsf.execute-api.us-east-1.amazonaws.com/dev/my-custom-url"}'
+# curl --request POST --url https://api.telegram.org/bot901222655:AAHXyriyQfZOc_-mEhroRNTpwbwtWo9Zqqg/setWebhook --header 'content-type: application/json' --data '{"url": "https://kdncs60my4.execute-api.us-east-1.amazonaws.com/dev/bot"}'
