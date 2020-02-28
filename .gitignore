@@ -1,5 +1,6 @@
-image_merging_bot/secrets.py
+secrets.py
 all_images/**/*
+node_modules
 
 # Distribution / packaging
 .Python

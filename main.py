@@ -1,7 +1,7 @@
 import cv2
 from matplotlib import pyplot
 from PIL import Image
-from image_merging_bot.snitching import get_merge_parameters, merge_with_parameters
+from snitching import get_merge_parameters, merge_with_parameters
 
 START_INDEX = 6
 END_INDEX = 7
