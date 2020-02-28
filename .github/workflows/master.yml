@@ -32,4 +32,6 @@ jobs:
     - name: cat
       run: cat deploy.out
     - name: Add web hook
+      env:
+        TELEGRAM_TOKEN: ${{ TELEGRAM_TOKEN }}
       run: python deploy.py
