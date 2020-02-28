@@ -12,7 +12,7 @@ def find(string):
 
 f = open("deploy.out", "r")
 serverless = f.read()
-aws_url = find(serverless)[0] = '/dev/bot'
+aws_url = find(serverless)[0] + '/dev/bot'
 print(aws_url)
 
 TOKEN = os.environ['TELEGRAM_TOKEN']
