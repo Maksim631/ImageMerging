@@ -1,0 +1,16 @@
+service: image-merging-bot
+
+provider:
+  name: aws
+  runtime: python3.6
+  stage: dev
+  region: us-east-1
+
+functions:
+  post:
+    handler: handler.hello
+    events:
+      - http:
+          path: bot
+          method: post
+          cors: true
