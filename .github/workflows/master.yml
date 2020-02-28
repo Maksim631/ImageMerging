@@ -31,3 +31,7 @@ jobs:
       run: serverless deploy | tee deploy.out
     - name: cat
       run: cat deploy.out
+    - name: Add web hook
+      with:
+        python-version: 3.8
+      run: python deploy.py

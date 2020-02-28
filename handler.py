@@ -10,6 +10,7 @@ import requests
 TOKEN = os.environ['TELEGRAM_TOKEN']
 BASE_URL = "https://api.telegram.org/bot{}".format(TOKEN)
 
+
 def hello(event, context):
     try:
         data = json.loads(event["body"])
