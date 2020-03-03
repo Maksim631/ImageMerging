@@ -1,11 +1,10 @@
 import json
 import os
-
+import requests
 import sys
 
 sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), "./vendored"))
 
-import requests
 
 TOKEN = os.environ['TELEGRAM_TOKEN']
 BASE_URL = "https://api.telegram.org/bot{}".format(TOKEN)
