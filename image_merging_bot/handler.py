@@ -16,8 +16,10 @@ BASE_URL = "https://api.telegram.org/bot{}".format(TOKEN)
 def handle(request):
     print("start")
     print(str(request))
+    print(TOKEN)
     try:
         data = json.loads(request.data)
+        print(data)
         message = str(data["message"]["text"])
         chat_id = data["message"]["chat"]["id"]
         first_name = data["message"]["chat"]["first_name"]
@@ -34,4 +36,4 @@ def handle(request):
     except Exception as e:
         print(e)
 
-    return Response({'key': 'value'}, status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_200_OK)
