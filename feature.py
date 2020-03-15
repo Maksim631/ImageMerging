@@ -73,12 +73,12 @@ if __name__ == '__main__':
     # Read reference image
     # img1 = "1_4.jpg"
     # print("Reading reference image : ", refFilename)
-    img1 = cv2.imread("1_4.jpg", cv2.IMREAD_GRAYSCALE)
-    img2 = cv2.imread("2_4.jpg", cv2.IMREAD_GRAYSCALE)
-    # width, height, ch = imReference.shape
+    imReference = cv2.imread("2.jpg", cv2.IMREAD_GRAYSCALE)
+    # img2 = cv2.imread("2_4.jpg", cv2.IMREAD_GRAYSCALE)
+    width, height = imReference.shape
 
-    # img1 = imReference[:width - 100, : height - 100]
-    # img2 = imReference[99:width - 1, 99: height - 1]
+    img1 = imReference[:width - 100, : height - 100]
+    img2 = imReference[99:width - 1, 99: height - 1]
     # img1 = cv2.cvtColor(np.array(noisy(img1, 0)), cv2.COLOR_RGB2GRAY)
     # img2 = cv2.cvtColor(np.array(noisy(img2, 0)), cv2.COLOR_RGB2GRAY)
     print("ssim: " + str(ssim(img1, img2)))
@@ -88,7 +88,7 @@ if __name__ == '__main__':
     print("Aligning test_images ...")
     # Registered image will be resotred in imReg.
     # The estimated homography will be stored in h.
-    # h = find_homograph(img2, img1)
-    # imReg = merge_images(img2, img1, h)
-    # cv2.imwrite("out.png", imReg)
+    h = find_homograph(img2, img1)
+    imReg = merge_images(img2, img1, h)
+    cv2.imwrite("out.png", imReg)
     # print(h)

@@ -110,7 +110,8 @@ def affine_rotate(image, angle, scale):
 
 
 def merge_with_parameters(img1, img2, translation_params):
-    x, y, scale, angle = translation_params
+    tr, scale, angle = translation_params
+    x, y = tr
     img2 = simple_rotate(img2, angle, scale)
     img2 = Image.fromarray(img2)
     if x <= 0 < y:
@@ -131,17 +132,17 @@ def merge_with_parameters(img1, img2, translation_params):
     if x >= 0 and y > 0:
         shape = (img1.size[0] + x, img1.size[1] + y)
         result_image = Image.new('RGB', shape)
-        result_image.paste(img2, (x, y))
         result_image.paste(img1, (0, 0))
+        result_image.paste(img2, (int(x), int(y)))
     return result_image
 
 
 def get_merge_parameters(cv_img1, cv_img2):
-    # cv_img1 = cv2.cvtColor(np.array(img1), cv2.COLOR_RGB2GRAY)
-    # cv_img2 = cv2.cvtColor(np.array(img2), cv2.COLOR_RGB2GRAY)
+    cv_img1 = cv2.cvtColor(np.array(cv_img1), cv2.COLOR_RGB2GRAY)
+    cv_img2 = cv2.cvtColor(np.array(cv_img2), cv2.COLOR_RGB2GRAY)
 
     blur_borders(cv_img1)
     blur_borders(cv_img2)
     angle, scale = rotation(cv_img1, cv_img2)
     img2_rotated = affine_rotate(cv_img2, angle, scale)
-    return translation(cv_img1, img2_rotated), scale, angle
+    return translation(cv_img1, img2_rotated), 1, 0

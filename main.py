@@ -1,10 +1,11 @@
 import cv2
-from fourier import get_merge_parameters
+from fourier import get_merge_parameters, merge_with_parameters
 from utils import get_translation_from_homograph, noisy, test_translations, psnr, estimate_noise, complete_comparing
 from sklearn.metrics import mean_squared_error
 from skimage.restoration import estimate_sigma
 from skimage.morphology import disk
 from scipy import signal
+from PIL import Image
 from skimage.metrics import structural_similarity as ssim
 from skimage.filters.rank import entropy
 
@@ -16,6 +17,15 @@ correct_pred = 0
 features = 0
 all_images = 0
 sigmas = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+
+image = cv2.imread('1.jpg')
+width, height, ch = image.shape
+img1 = image[:width - 100, : height - 100]
+img2 = image[99:width - 1, 99: height - 1]
+img1 = Image.fromarray(img1)
+img2 = Image.fromarray(img2)
+cv2.imwrite("out.jpg", np.array(merge_with_parameters(img1, img2, get_merge_parameters(img1, img2))))
+print("end")
 
 i = 6
 while i < 7:
