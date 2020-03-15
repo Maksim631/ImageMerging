@@ -13,6 +13,8 @@ Content-Type: application/json
 }
 
 ###
+POST https://peaceful-dawn-05554.herokuapp.com/bot/
+###
 
 # curl --request POST --url https://api.telegram.org/bot459903168:APHruyw7ZFj5qOJmJGeYEmfFJxil-z5uLS8/setWebhook --header 'content-type: application/json' --data '{"url": "https://u3ir5tjcsf.execute-api.us-east-1.amazonaws.com/dev/my-custom-url"}'
 POST https://api.telegram.org/bot901222655:AAHXyriyQfZOc_-mEhroRNTpwbwtWo9Zqqg/setWebhook
