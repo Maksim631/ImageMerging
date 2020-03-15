@@ -18,7 +18,7 @@ def handle(request):
     print(str(request))
     print(TOKEN)
     try:
-        data = json.loads(request.data)
+        data = request.data
         print(data)
         message = str(data["message"]["text"])
         chat_id = data["message"]["chat"]["id"]
