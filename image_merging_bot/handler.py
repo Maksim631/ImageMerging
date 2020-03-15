@@ -17,10 +17,10 @@ def handle(request):
     print("start")
     print(str(request))
     try:
-        data = json.loads(request.meta["body"])
-        message = str(data.meta["message"]["text"])
-        chat_id = data.meta["message"]["chat"]["id"]
-        first_name = data.meta["message"]["chat"]["first_name"]
+        data = json.loads(request.data)
+        message = str(data["message"]["text"])
+        chat_id = data["message"]["chat"]["id"]
+        first_name = data["message"]["chat"]["first_name"]
 
         response = "Please /start, {}".format(first_name)
 
