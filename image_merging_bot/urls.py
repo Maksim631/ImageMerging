@@ -16,6 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from image_merging_bot.handler import handle
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('bot/', handle)
 ]
