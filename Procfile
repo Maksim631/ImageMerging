@@ -1,0 +1,1 @@
+web: gunicorn image_merging_bot.wsgi --log-file -
