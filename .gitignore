@@ -1,6 +1,7 @@
 secrets.py
 all_images/**/*
 node_modules
+deploy.http
 
 # Distribution / packaging
 .Python
