@@ -46,11 +46,12 @@ def handle(request):
     return Response(status=status.HTTP_200_OK)
 
 
-def handle_photo(photo, chat_id):
+def handle_photo(photos, chat_id):
     print("Received image")
-    file_path = requests.get(GET_FILE_PATH_URL.replace("<file_id>", photo["file_id"]))
-    print(file_path)
-    file = requests.get(GET_FILE_URL.replace("<file_path>", file_path.json()["file_path"]))
-    data = {"text": "image", "chat_id": chat_id, photo: file}
-    requests.post(SEND_MESSAGE_URL, data)
-    print("SUCCESS 2")
+    for photo in photos:
+        file_path = requests.get(GET_FILE_PATH_URL.replace("<file_id>", photo["file_id"]))
+        print(file_path)
+        file = requests.get(GET_FILE_URL.replace("<file_path>", file_path.json()["file_path"]))
+        data = {"text": "image", "chat_id": chat_id, photo: file}
+        requests.post(SEND_MESSAGE_URL, data)
+        print("SUCCESS 2")
