@@ -50,8 +50,9 @@ def handle_photo(photos, chat_id):
     print("Received image")
     for photo in photos:
         file_path = requests.get(GET_FILE_PATH_URL.replace("<file_id>", photo["file_id"]))
-        print(file_path)
+        print(file_path.json())
         file = requests.get(GET_FILE_URL.replace("<file_path>", file_path.json()["file_path"]))
-        data = {"text": "image", "chat_id": chat_id, photo: file}
+        print(file.json())
+        data = {"text": "image", "chat_id": chat_id}
         requests.post(SEND_MESSAGE_URL, data)
         print("SUCCESS 2")
