@@ -9,6 +9,9 @@ from rest_framework.response import Response
 
 TOKEN = os.environ['TELEGRAM_TOKEN']
 BASE_URL = "https://api.telegram.org/bot{}".format(TOKEN)
+GET_FILE_PATH_URL = BASE_URL + "/getFile?file_id=<file_id>"
+GET_FILE_URL = BASE_URL + "/<file_path>"
+SEND_MESSAGE_URL = BASE_URL + "/sendMessage"
 
 
 @api_view(['POST'])
@@ -20,20 +23,34 @@ def handle(request):
     try:
         data = request.data
         print(data)
-        message = str(data["message"]["text"])
         chat_id = data["message"]["chat"]["id"]
-        first_name = data["message"]["chat"]["first_name"]
+        if data["message"]["photo"] is not None:
+            handle_photo(data["message"]["photo"], chat_id)
+        else:
+            message = str(data["message"]["text"])
 
-        response = "Please /start, {}".format(first_name)
+            first_name = data["message"]["chat"]["first_name"]
 
-        if "start" in message:
-            response = "Hello {}".format(first_name)
+            response = "Please /start, {}".format(first_name)
 
-        data = {"text": response.encode("utf8"), "chat_id": chat_id}
-        url = BASE_URL + "/sendMessage"
-        requests.post(url, data)
-        print("SUCCESS")
+            if "start" in message:
+                response = "Hello {}".format(first_name)
+
+            data = {"text": response.encode("utf8"), "chat_id": chat_id}
+
+            requests.post(SEND_MESSAGE_URL, data)
+            print("SUCCESS 1")
     except Exception as e:
         print(e)
 
     return Response(status=status.HTTP_200_OK)
+
+
+def handle_photo(photo, chat_id):
+    print("Received image")
+    file_path = requests.get(GET_FILE_PATH_URL.replace("<file_id>", photo["file_id"]))
+    print(file_path)
+    file = requests.get(GET_FILE_URL.replace("<file_path>", file_path.json()["file_path"]))
+    data = {"text": "image", "chat_id": chat_id, photo: file}
+    requests.post(SEND_MESSAGE_URL, data)
+    print("SUCCESS 2")
