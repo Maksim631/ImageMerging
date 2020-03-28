@@ -35,6 +35,7 @@ def fourier(img):
 
 def translation(img1, img2):
     a = register_translation(img1, img2)
+    print(a)
     return int(a[0][0]), int(a[0][1])
 
 
