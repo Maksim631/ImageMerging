@@ -10,7 +10,7 @@ from rest_framework.response import Response
 TOKEN = os.environ['TELEGRAM_TOKEN']
 BASE_URL = "https://api.telegram.org/bot{}".format(TOKEN)
 GET_FILE_PATH_URL = BASE_URL + "/getFile?file_id=<file_id>"
-GET_FILE_URL = BASE_URL + "/<file_path>"
+GET_FILE_URL = "https://api.telegram.org/file/bot{}".format(TOKEN) + "/<file_path>"
 SEND_MESSAGE_URL = BASE_URL + "/sendMessage"
 SEND_PHOTO_URL = BASE_URL + "/sendPhoto"
 
@@ -50,7 +50,8 @@ def handle(request):
 def handle_photo(photos, chat_id):
     print("Received image")
     for photo in photos:
-        file_path_response = requests.get(GET_FILE_PATH_URL.replace("<file_id>", photo["file_id"]))
+        file_id = photo["file_id"]
+        file_path_response = requests.get(GET_FILE_PATH_URL.replace("<file_id>", file_id))
         print(file_path_response.json())
         file_path = file_path_response.json()["result"]["file_path"]
         file = requests.get(GET_FILE_URL.replace("<file_path>", file_path))
