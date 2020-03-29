@@ -54,11 +54,11 @@ def handle_photo(photos, chat_id):
         file_id = photo["file_id"]
         file_path_response = requests.get(GET_FILE_PATH_URL.replace("<file_id>", file_id))
         print(file_path_response.json())
-        file_path = file_path_response.json()["result"]["file_path"]
-        file = requests.get(GET_FILE_URL.replace("<file_path>", file_path), allow_redirects=True)
+        # file_path = file_path_response.json()["result"]["file_path"]
+        # file = requests.get(GET_FILE_URL.replace("<file_path>", file_path), allow_redirects=True)
         # open('image_' + str(i) + ".jpg").write(file.content)
-        print(file.content)
-        print(GET_FILE_URL.replace("<file_path>", file_path))
-        data = {"photo": file.content, "chat_id": chat_id}
+        # print(file.content)
+        # print(GET_FILE_URL.replace("<file_path>", file_path))
+        data = {"photo": file_id, "chat_id": chat_id}
         requests.post(SEND_PHOTO_URL, data)
         print("SUCCESS 2")
