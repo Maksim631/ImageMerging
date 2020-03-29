@@ -12,6 +12,7 @@ BASE_URL = "https://api.telegram.org/bot{}".format(TOKEN)
 GET_FILE_PATH_URL = BASE_URL + "/getFile?file_id=<file_id>"
 GET_FILE_URL = BASE_URL + "/<file_path>"
 SEND_MESSAGE_URL = BASE_URL + "/sendMessage"
+SEND_PHOTO_URL = BASE_URL + "/sendPhoto"
 
 
 @api_view(['POST'])
@@ -54,6 +55,7 @@ def handle_photo(photos, chat_id):
         file_path = file_path_response.json()["result"]["file_path"]
         file = requests.get(GET_FILE_URL.replace("<file_path>", file_path))
         print(file.json())
-        data = {"text": "image", "chat_id": chat_id}
-        requests.post(SEND_MESSAGE_URL, data)
+        print(GET_FILE_URL.replace("<file_path>", file_path))
+        data = {"photo": file.json(), "chat_id": chat_id}
+        requests.post(SEND_PHOTO_URL, data)
         print("SUCCESS 2")
