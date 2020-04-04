@@ -63,23 +63,29 @@ def get_biggest_photos(photos):
     return result
 
 
+def get_file(photo):
+    file_id = photo["file_id"]
+    file_path_response = requests.get(GET_FILE_PATH_URL.replace("<file_id>", file_id))
+    print(file_path_response.json())
+    file_path = file_path_response.json()["result"]["file_path"]
+    file = requests.get(GET_FILE_URL.replace("<file_path>", file_path), allow_redirects=True)
+    print(file)
+    return file.content
+
+
 def handle_photo(photos, chat_id):
     print("Received image")
     i = 0
     photos = get_biggest_photos(photos)
-    image1 = Image.open(photos[0])
-    image2 = Image.open(photos[1])
+    image1 = Image.open(get_file(photos[0]))
+    image2 = Image.open(get_file(photos[1]))
     parameters = get_merge_parameters(image1, image2)
     print(parameters)
 
     data = {"text": parameters, "chat_id": chat_id}
     requests.post(SEND_MESSAGE_URL, data)
     # for photo in photos:
-    #     file_id = photo["file_id"]
-    #     file_path_response = requests.get(GET_FILE_PATH_URL.replace("<file_id>", file_id))
-    #     print(file_path_response.json())
-    #     # file_path = file_path_response.json()["result"]["file_path"]
-    #     # file = requests.get(GET_FILE_URL.replace("<file_path>", file_path), allow_redirects=True)
+
     #     # open('image_' + str(i) + ".jpg").write(file.content)
     #     # print(file.content)
     #     # print(GET_FILE_URL.replace("<file_path>", file_path))
