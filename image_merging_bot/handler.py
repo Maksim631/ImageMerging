@@ -1,6 +1,5 @@
 import json
 
-import cv2
 from PIL import Image
 from rest_framework import status
 from rest_framework.decorators import permission_classes, api_view
