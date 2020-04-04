@@ -3,6 +3,7 @@ import math
 import cv2
 import numpy as np
 import scipy.ndimage.interpolation as ndii
+from PIL import Image
 from skimage.feature import register_translation
 
 
