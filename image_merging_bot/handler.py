@@ -47,9 +47,22 @@ def handle(request):
     return Response(status=status.HTTP_200_OK)
 
 
+def get_biggest_photos(photos):
+    current_size = 0
+    result = []
+    for photo in photos:
+        if photo["file_size"] > current_size:
+            current_size = photo["file_size"]
+        else:
+            result.append(photo)
+            current_size = 0
+    return result
+
+
 def handle_photo(photos, chat_id):
     print("Received image")
     i = 0
+    photos = get_biggest_photos(photos)
     for photo in photos:
         file_id = photo["file_id"]
         file_path_response = requests.get(GET_FILE_PATH_URL.replace("<file_id>", file_id))
