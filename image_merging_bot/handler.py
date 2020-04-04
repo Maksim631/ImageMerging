@@ -1,4 +1,5 @@
 import json
+from io import BytesIO
 
 from PIL import Image
 from rest_framework import status
@@ -77,8 +78,8 @@ def handle_photo(photos, chat_id):
     print("Received image")
     i = 0
     photos = get_biggest_photos(photos)
-    image1 = Image.open(get_file(photos[0]))
-    image2 = Image.open(get_file(photos[1]))
+    image1 = Image.open(BytesIO(get_file(photos[0])))
+    image2 = Image.open(BytesIO(get_file(photos[1])))
     parameters = get_merge_parameters(image1, image2)
     print(parameters)
 
