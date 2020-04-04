@@ -49,15 +49,15 @@ def handle(request):
 
 def get_biggest_photos(photos):
     current_size = 0
-    return photos
-    # result = []
-    # for photo in photos:
-    #     if photo["file_size"] > current_size:
-    #         current_size = photo["file_size"]
-    #     else:
-    #         result.append(photo)
-    #         current_size = 0
-    # return result
+    result = []
+    for photo in photos:
+        if photo["file_size"] > current_size:
+            current_size = photo["file_size"]
+        else:
+            result.append(photo)
+            current_size = 0
+    result.append(photos[-1])
+    return result
 
 
 def handle_photo(photos, chat_id):
