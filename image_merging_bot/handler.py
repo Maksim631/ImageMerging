@@ -54,12 +54,14 @@ def handle(request):
 def get_biggest_photos(photos):
     current_size = 0
     result = []
+    current_photo = photos[0]
     for photo in photos:
         if photo["file_size"] > current_size:
             current_size = photo["file_size"]
         else:
-            result.append(photo)
+            result.append(current_photo)
             current_size = 0
+        current_photo = photo
     result.append(photos[-1])
     return result
 
@@ -78,6 +80,7 @@ def handle_photo(photos, chat_id):
     print("Received image")
     i = 0
     photos = get_biggest_photos(photos)
+    print(photos)
     image1 = Image.open(BytesIO(get_file(photos[0])))
     image2 = Image.open(BytesIO(get_file(photos[1])))
     parameters = get_merge_parameters(image1, image2)
