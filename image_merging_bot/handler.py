@@ -30,7 +30,7 @@ def handle(request):
         chat_id = data["message"]["chat"]["id"]
         if "photo" in data["message"]:
             print("2")
-            handle_photo(data["message"]["photo"], chat_id, data["message"]["photo"]["media_group_id"])
+            handle_photo(data["message"]["photo"], chat_id, data["message"]["media_group_id"])
         else:
             text = str(data["message"]["text"])
             if "snitch" in text:
@@ -39,6 +39,7 @@ def handle(request):
                 data = {"text": str(Photo.objects.all()), "chat_id": chat_id}
                 requests.post(SEND_MESSAGE_URL, data)
             else:
+
                 default_handler(chat_id, data["message"])
 
     except Exception as e:
