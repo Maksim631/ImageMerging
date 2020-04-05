@@ -104,7 +104,10 @@ def snitch_images(chat_id):
 def handle_photo(photos, chat_id, media_group_id):
     print("Received image with group_id = ", media_group_id)
     if media_group_id in images:
+        print("4")
         images[media_group_id] = []
+        print("5")
+    print("6")
     images[media_group_id].append(photos[-1]["file_id"])
     print(images)
     data = {"text": "Image added", "chat_id": chat_id}
