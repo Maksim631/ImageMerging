@@ -8,6 +8,7 @@ import os
 import requests
 from rest_framework.response import Response
 
+from image_merging_bot.models import Photo
 from snitching.fourier import get_merge_parameters
 
 TOKEN = os.environ['TELEGRAM_TOKEN']
@@ -33,9 +34,9 @@ def handle(request):
         else:
             text = str(data["message"]["text"])
             if "snitch" in text:
-                snitch_images(chat_id)
+                snitch_images(chat_id, text.split(" ")[1])
             if "images" in text:
-                data = {"text": str(images), "chat_id": chat_id}
+                data = {"text": str(Photo.objects.all()), "chat_id": chat_id}
                 requests.post(SEND_MESSAGE_URL, data)
             else:
                 default_handler(chat_id, data["message"])
@@ -61,24 +62,6 @@ def default_handler(chat_id, message):
     print("SUCCESS 1")
 
 
-def get_biggest_photos(photos):
-    print("getting")
-    current_size = 0
-    result = []
-    current_photo = photos[0]
-    for photo in photos:
-        print(photo["file_size"])
-        if photo["file_size"] > current_size:
-            current_size = photo["file_size"]
-        else:
-            print("append one")
-            result.append(current_photo)
-            current_size = 0
-        current_photo = photo
-    result.append(photos[-1])
-    return result
-
-
 def get_file(photo):
     file_id = photo["file_id"]
     file_path_response = requests.get(GET_FILE_PATH_URL.replace("<file_id>", file_id))
@@ -90,11 +73,12 @@ def get_file(photo):
     return file.content
 
 
-def snitch_images(chat_id):
-    print(images)
-    for photos in images.values():
-        image1 = Image.open(BytesIO(get_file(photos[0])))
-        image2 = Image.open(BytesIO(get_file(photos[1])))
+def snitch_images(chat_id, group_id):
+    photos = Photo.objects.filter(group=group_id)
+    print(photos)
+    for photo in photos:
+        image1 = Image.open(BytesIO(get_file(photo.photo_id)))
+        image2 = Image.open(BytesIO(get_file(photo.photo_id)))
         parameters = get_merge_parameters(image1, image2)
         print(parameters)
         data = {"text": parameters, "chat_id": chat_id}
@@ -104,14 +88,12 @@ def snitch_images(chat_id):
 def handle_photo(photos, chat_id, media_group_id):
     print("Received image with group_id = ", media_group_id)
     print(images)
-    if media_group_id not in images:
-        print("4")
-        images[media_group_id] = []
-        print("5")
-    print("6")
-    images[media_group_id].append(photos[-1]["file_id"])
-    print(images)
-    data = {"text": "Image added", "chat_id": chat_id}
+    photo_db = Photo()
+    photo_db.group = media_group_id
+    photo_db.photo_id = photos[-1]["file_id"]
+    photo_db.save()
+    response = "Photo added to group " + media_group_id
+    data = {"text": response, "chat_id": chat_id}
     requests.post(SEND_MESSAGE_URL, data)
     # for photo in photos:
 
