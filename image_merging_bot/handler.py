@@ -8,7 +8,7 @@ import os
 import requests
 from rest_framework.response import Response
 
-from image_merging_bot.models import Photo
+from image_merging_bot.models.models import Photo
 from snitching.fourier import get_merge_parameters
 
 TOKEN = os.environ['TELEGRAM_TOKEN']
@@ -30,12 +30,13 @@ def handle(request):
         chat_id = data["message"]["chat"]["id"]
         if "photo" in data["message"]:
             print("2")
-            handle_photo(data["message"]["photo"], chat_id, data["message"]["media_group_id"])
+            handle_photo(data["message"]["photo"], chat_id, data["message"]["photo"]["media_group_id"])
         else:
             text = str(data["message"]["text"])
             if "snitch" in text:
                 snitch_images(chat_id, text.split(" ")[1])
             if "images" in text:
+                print(str(Photo.objects.all()))
                 data = {"text": str(Photo.objects.all()), "chat_id": chat_id}
                 requests.post(SEND_MESSAGE_URL, data)
             else:
@@ -43,7 +44,6 @@ def handle(request):
 
     except Exception as e:
         print(e)
-
 
     return Response(status=status.HTTP_200_OK)
 
@@ -90,7 +90,7 @@ def handle_photo(photos, chat_id, media_group_id):
     print(images)
     photo_db = Photo()
     photo_db.group = media_group_id
-    photo_db.photo_id = photos[-1]["file_id"]
+    photo_db.photo_id = photos["file_id"]
     photo_db.save()
     response = "Photo added to group " + media_group_id
     data = {"text": response, "chat_id": chat_id}
