@@ -52,13 +52,16 @@ def handle(request):
 
 
 def get_biggest_photos(photos):
+    print("getting")
     current_size = 0
     result = []
     current_photo = photos[0]
     for photo in photos:
+        print(photo["file_size"])
         if photo["file_size"] > current_size:
             current_size = photo["file_size"]
         else:
+            print("append one")
             result.append(current_photo)
             current_size = 0
         current_photo = photo
