@@ -18,37 +18,40 @@ GET_FILE_URL = "https://api.telegram.org/file/bot{}".format(TOKEN) + "/<file_pat
 SEND_MESSAGE_URL = BASE_URL + "/sendMessage"
 SEND_PHOTO_URL = BASE_URL + "/sendPhoto"
 
+images = {}
+
 
 @api_view(['POST'])
 @permission_classes((AllowAny,))
 def handle(request):
-    print("start")
     print(str(request))
-    print(TOKEN)
     try:
         data = request.data
         print(data)
         chat_id = data["message"]["chat"]["id"]
         if data["message"]["photo"] is not None:
-            handle_photo(data["message"]["photo"], chat_id)
+            handle_photo(data["message"]["photo"], chat_id, data["message"]["media_group_id"])
         else:
             message = str(data["message"]["text"])
+            if message == "/snitch":
+                snitch_images(chat_id)
+            else:
+                default_handler(chat_id, message)
 
-            first_name = data["message"]["chat"]["first_name"]
-
-            response = "Please /start, {}".format(first_name)
-
-            if "start" in message:
-                response = "Hello {}".format(first_name)
-
-            data = {"text": response.encode("utf8"), "chat_id": chat_id}
-
-            requests.post(SEND_MESSAGE_URL, data)
-            print("SUCCESS 1")
     except Exception as e:
         print(e)
 
     return Response(status=status.HTTP_200_OK)
+
+
+def default_handler(chat_id, message):
+    first_name = message["chat"]["first_name"]
+    response = "Please /start, {}".format(first_name)
+    if "start" in message:
+        response = "Hello {}".format(first_name)
+    data = {"text": response.encode("utf8"), "chat_id": chat_id}
+    requests.post(SEND_MESSAGE_URL, data)
+    print("SUCCESS 1")
 
 
 def get_biggest_photos(photos):
@@ -80,16 +83,23 @@ def get_file(photo):
     return file.content
 
 
-def handle_photo(photos, chat_id):
-    print("Received image")
-    i = 0
-    photos = get_biggest_photos(photos)
-    image1 = Image.open(BytesIO(get_file(photos[0])))
-    image2 = Image.open(BytesIO(get_file(photos[1])))
-    # parameters = get_merge_parameters(image1, image2)
-    # print(parameters)
+def snitch_images(chat_id):
+    for photos in images.values():
+        image1 = Image.open(BytesIO(photos[0]))
+        image2 = Image.open(BytesIO(photos[1]))
+        parameters = get_merge_parameters(image1, image2)
+        print(parameters)
+        data = {"text": parameters, "chat_id": chat_id}
+        requests.post(SEND_MESSAGE_URL, data)
 
-    data = {"text": "parameters", "chat_id": chat_id}
+
+def handle_photo(photos, chat_id, media_group_id):
+    print("Received image with group_id = {}", media_group_id)
+    i = 0
+    if images[media_group_id] is None:
+        images[media_group_id] = []
+    images[media_group_id].append(get_file(photos[-1]))
+    data = {"text": "Image added", "chat_id": chat_id}
     requests.post(SEND_MESSAGE_URL, data)
     # for photo in photos:
 
