@@ -3,6 +3,7 @@ import math
 import cv2
 import numpy as np
 import scipy.ndimage.interpolation as ndii
+from PIL import Image
 from skimage.feature import register_translation
 
 
@@ -138,6 +139,7 @@ def merge_with_parameters(img1, img2, translation_params):
 
 
 def get_merge_parameters(cv_img1, cv_img2):
+    print("gettting parameters")
     cv_img1 = cv2.cvtColor(np.array(cv_img1), cv2.COLOR_RGB2GRAY)
     cv_img2 = cv2.cvtColor(np.array(cv_img2), cv2.COLOR_RGB2GRAY)
 
