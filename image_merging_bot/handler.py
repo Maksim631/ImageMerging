@@ -103,7 +103,7 @@ def snitch_images(chat_id):
 
 def handle_photo(photos, chat_id, media_group_id):
     print("Received image with group_id = ", media_group_id)
-    if str(media_group_id) in images:
+    if media_group_id not in images:
         print("4")
         images[media_group_id] = []
         print("5")
