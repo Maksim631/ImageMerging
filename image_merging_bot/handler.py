@@ -1,4 +1,3 @@
-import json
 from io import BytesIO
 
 from PIL import Image
@@ -28,16 +27,16 @@ def handle(request):
         data = request.data
         print(data)
         chat_id = data["message"]["chat"]["id"]
-        print("1")
         if "photo" in data["message"]:
             print("2")
             handle_photo(data["message"]["photo"], chat_id, data["message"]["media_group_id"])
         else:
-            print("3)")
             text = str(data["message"]["text"])
-            print(text)
             if "snitch" in text:
                 snitch_images(chat_id)
+            if "images" in text:
+                data = {"text": str(images), "chat_id": chat_id}
+                requests.post(SEND_MESSAGE_URL, data)
             else:
                 default_handler(chat_id, data["message"])
 
