@@ -91,9 +91,10 @@ def get_file(photo):
 
 
 def snitch_images(chat_id):
+    print(images)
     for photos in images.values():
-        image1 = Image.open(BytesIO(photos[0]))
-        image2 = Image.open(BytesIO(photos[1]))
+        image1 = Image.open(BytesIO(get_file(photos[0])))
+        image2 = Image.open(BytesIO(get_file(photos[1])))
         parameters = get_merge_parameters(image1, image2)
         print(parameters)
         data = {"text": parameters, "chat_id": chat_id}
@@ -101,11 +102,11 @@ def snitch_images(chat_id):
 
 
 def handle_photo(photos, chat_id, media_group_id):
-    print("Received image with group_id = {}", media_group_id)
-    i = 0
-    if images[media_group_id] is None:
+    print("Received image with group_id = ", media_group_id)
+    if media_group_id in images:
         images[media_group_id] = []
-    images[media_group_id].append(get_file(photos[-1]))
+    images[media_group_id].append(photos[-1]["file_id"])
+    print(images)
     data = {"text": "Image added", "chat_id": chat_id}
     requests.post(SEND_MESSAGE_URL, data)
     # for photo in photos:
