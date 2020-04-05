@@ -24,16 +24,18 @@ images = {}
 @api_view(['POST'])
 @permission_classes((AllowAny,))
 def handle(request):
-    print(TOKEN)
-    print(str(request))
     try:
         data = request.data
         print(data)
         chat_id = data["message"]["chat"]["id"]
+        print("1")
         if data["message"]["photo"] is not None:
+            print("2")
             handle_photo(data["message"]["photo"], chat_id, data["message"]["media_group_id"])
         else:
+            print("3)")
             message = str(data["message"]["text"])
+            print(message)
             if "snitch" in message:
                 snitch_images(chat_id)
             else:
