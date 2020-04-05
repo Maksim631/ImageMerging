@@ -34,12 +34,12 @@ def handle(request):
             handle_photo(data["message"]["photo"], chat_id, data["message"]["media_group_id"])
         else:
             print("3)")
-            message = str(data["message"]["text"])
-            print(message)
-            if "/snitch" == message:
+            text = str(data["message"]["text"])
+            print(text)
+            if "snitch" in text:
                 snitch_images(chat_id)
             else:
-                default_handler(chat_id, message)
+                default_handler(chat_id, data["message"])
 
     except Exception as e:
         print(e)
@@ -48,9 +48,10 @@ def handle(request):
 
 
 def default_handler(chat_id, message):
+    text = message["text"]
     first_name = message["chat"]["first_name"]
     response = "Please /start, {}".format(first_name)
-    if "/start" == message:
+    if "start" in text:
         response = "Hello {}".format(first_name)
     print(response)
     print(chat_id)
