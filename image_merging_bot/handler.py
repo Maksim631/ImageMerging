@@ -36,7 +36,7 @@ def handle(request):
             print("3)")
             message = str(data["message"]["text"])
             print(message)
-            if "snitch" in message:
+            if "/snitch" == message:
                 snitch_images(chat_id)
             else:
                 default_handler(chat_id, message)
@@ -50,7 +50,7 @@ def handle(request):
 def default_handler(chat_id, message):
     first_name = message["chat"]["first_name"]
     response = "Please /start, {}".format(first_name)
-    if "start" in message:
+    if "/start" == message:
         response = "Hello {}".format(first_name)
     print(response)
     print(chat_id)
