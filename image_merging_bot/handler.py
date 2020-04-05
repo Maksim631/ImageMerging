@@ -29,7 +29,7 @@ def handle(request):
         print(data)
         chat_id = data["message"]["chat"]["id"]
         print("1")
-        if "photo" in data["message"].keys():
+        if "photo" in data["message"]:
             print("2")
             handle_photo(data["message"]["photo"], chat_id, data["message"]["media_group_id"])
         else:
