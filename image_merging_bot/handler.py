@@ -83,10 +83,10 @@ def handle_photo(photos, chat_id):
     photos = get_biggest_photos(photos)
     image1 = Image.open(BytesIO(get_file(photos[0])))
     image2 = Image.open(BytesIO(get_file(photos[1])))
-    parameters = get_merge_parameters(image1, image2)
-    print(parameters)
+    # parameters = get_merge_parameters(image1, image2)
+    # print(parameters)
 
-    data = {"text": parameters, "chat_id": chat_id}
+    data = {"text": "parameters", "chat_id": chat_id}
     requests.post(SEND_MESSAGE_URL, data)
     # for photo in photos:
 
