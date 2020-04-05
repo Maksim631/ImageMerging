@@ -24,6 +24,7 @@ images = {}
 @api_view(['POST'])
 @permission_classes((AllowAny,))
 def handle(request):
+    print(TOKEN)
     print(str(request))
     try:
         data = request.data
