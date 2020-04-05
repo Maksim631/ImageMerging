@@ -33,7 +33,7 @@ def handle(request):
             handle_photo(data["message"]["photo"], chat_id, data["message"]["media_group_id"])
         else:
             message = str(data["message"]["text"])
-            if message == "/snitch":
+            if "snitch" in message:
                 snitch_images(chat_id)
             else:
                 default_handler(chat_id, message)
@@ -49,8 +49,11 @@ def default_handler(chat_id, message):
     response = "Please /start, {}".format(first_name)
     if "start" in message:
         response = "Hello {}".format(first_name)
+    print(response)
+    print(chat_id)
     data = {"text": response.encode("utf8"), "chat_id": chat_id}
-    requests.post(SEND_MESSAGE_URL, data)
+    a = requests.post(SEND_MESSAGE_URL, data)
+    print(a)
     print("SUCCESS 1")
 
 
