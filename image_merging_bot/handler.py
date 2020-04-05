@@ -36,7 +36,6 @@ def handle(request):
             if "snitch" in text:
                 snitch_images(chat_id, text.split(" ")[1])
             if "images" in text:
-                print(str(Photo.objects.all()))
                 data = {"text": str(Photo.objects.all()), "chat_id": chat_id}
                 requests.post(SEND_MESSAGE_URL, data)
             else:
@@ -44,6 +43,7 @@ def handle(request):
 
     except Exception as e:
         print(e)
+
 
     return Response(status=status.HTTP_200_OK)
 
@@ -90,7 +90,7 @@ def handle_photo(photos, chat_id, media_group_id):
     print(images)
     photo_db = Photo()
     photo_db.group = media_group_id
-    photo_db.photo_id = photos["file_id"]
+    photo_db.photo_id = photos[-1]["file_id"]
     photo_db.save()
     response = "Photo added to group " + media_group_id
     data = {"text": response, "chat_id": chat_id}
