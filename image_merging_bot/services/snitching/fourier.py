@@ -131,7 +131,7 @@ def merge_with_parameters(img1, img2, translation_params):
         result_image.paste(img2, (y, x))
         result_image.paste(img1, (0, 0))
     if x >= 0 and y > 0:
-        shape = (img1.size[0] + x, img1.size[1] + y)
+        shape = (img1.size[0] + y, img1.size[1] + x)
         result_image = Image.new('RGB', shape)
         result_image.paste(img1, (0, 0))
         result_image.paste(img2, (y, x))
