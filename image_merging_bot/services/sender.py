@@ -20,4 +20,4 @@ def send_image_by_url(chat_id, image_path):
 def send_image(chat_id, image):
     print("Sending Photo")
     files = {'photo': image}
-    requests.post(SEND_PHOTO_URL + f"?chat_id={chat_id}", files=files)
+    requests.post(f"{SEND_PHOTO_URL}?chat_id={chat_id}", files=files)
