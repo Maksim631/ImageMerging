@@ -3,8 +3,8 @@ import cv2
 import math
 from scipy.signal import convolve2d
 
-from snitching import find_homograph
-from snitching import get_merge_parameters
+from image_merging_bot.services.snitching import find_homograph
+from image_merging_bot.services.snitching import get_merge_parameters
 
 
 def noisy(image, sigma):

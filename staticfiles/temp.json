@@ -1,0 +1,32 @@
+{
+  "update_id": 89591023,
+  "message": {
+    "message_id": 167,
+    "from": {
+      "id": 165887881,
+      "is_bot": false,
+      "first_name": "Maksim",
+      "last_name": "Marchukov",
+      "username": "Maksim631",
+      "language_code": "ru"
+    },
+    "chat": {
+      "id": 165887881,
+      "first_name": "Maksim",
+      "last_name": "Marchukov",
+      "username": "Maksim631",
+      "type": "private"
+    },
+    "date": 1586091158,
+    "photo": {
+
+    },
+    "entities": [
+      {
+        "offset": 0,
+        "length": 6,
+        "type": "bot_command"
+      }
+    ]
+  }
+}

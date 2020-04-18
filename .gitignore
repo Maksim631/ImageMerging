@@ -27,6 +27,5 @@ var/
 
 image_merging_bot/migrations/**
 *.jpeg
-*.png
 *.jpg
 *.http
