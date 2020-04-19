@@ -51,7 +51,11 @@ def complete_comparing(img1, img2):
 def test_translations(fourier_translation, feature_translation):
     feature = np.sqrt((99 - feature_translation[0]) ** 2 + (99 - feature_translation[1]) ** 2)
     fourier = np.sqrt((99 - fourier_translation[0]) ** 2 + (99 - fourier_translation[1]) ** 2)
-    if feature >= fourier:
+    print(f"featureValue= {feature}")
+    print(f"fourierValue= {fourier}")
+    if feature == fourier or feature - fourier < 10:
+        return 'same'
+    if feature > fourier:
         return 'Fourier-Mellin'
     else:
         return 'Feature'
