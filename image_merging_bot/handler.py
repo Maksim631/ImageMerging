@@ -32,9 +32,9 @@ def handle(request):
         if "images" in text:
             send_text(chat_id, get_user_photos_count(chat_id))
             found = True
-        if "fourier-mellin" in text:
+        if "fourier" in text:
             set_fourier_way(chat_id)
-            send_text(chat_id, "Set snitching method to Fourier-Mellin transoform")
+            send_text(chat_id, "Set snitching method to Fourier-Mellin transform")
             found = True
         if "feature" in text:
             set_feature_way(chat_id)
@@ -47,7 +47,7 @@ def handle(request):
         if "advice" in text:
             send_image_by_url(chat_id, ADVICE_URL)
             found = True
-        if "current-way" in text:
+        if "current" in text:
             send_text(chat_id, get_current_way(chat_id))
             found = True
         if not found:
