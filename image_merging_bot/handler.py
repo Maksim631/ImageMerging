@@ -9,7 +9,7 @@ from rest_framework.response import Response
 
 from image_merging_bot.common import ADVICE_URL
 from image_merging_bot.database.models import Photo
-from image_merging_bot.services.photo import get_user_photos_count, snitch_images
+from image_merging_bot.services.photo import get_user_photos_count, stitch_images
 from image_merging_bot.services.sender import send_text, send_image, send_image_by_url
 from image_merging_bot.services.way import set_fourier_way, set_feature_way, set_default_way, get_current_way
 
