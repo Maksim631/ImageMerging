@@ -26,23 +26,23 @@ def handle(request):
             handle_photo(data["message"]["photo"], chat_id)
             found = True
         text = str(data["message"]["text"])
-        if "snitch" in text:
-            send_text(chat_id, snitch_images(chat_id))
+        if "stitch" in text:
+            send_text(chat_id, stitch_images(chat_id))
             found = True
         if "images" in text:
             send_text(chat_id, get_user_photos_count(chat_id))
             found = True
         if "fourier" in text:
             set_fourier_way(chat_id)
-            send_text(chat_id, "Set snitching method to Fourier-Mellin transform")
+            send_text(chat_id, "Set stitching method to Fourier-Mellin transform")
             found = True
         if "feature" in text:
             set_feature_way(chat_id)
-            send_text(chat_id, "Set snitching method to feature based")
+            send_text(chat_id, "Set stitching method to feature based")
             found = True
         if "default" in text:
             set_default_way(chat_id)
-            send_text(chat_id, "Set snitching method to default")
+            send_text(chat_id, "Set stitching method to default")
             found = True
         if "advice" in text:
             send_image_by_url(chat_id, ADVICE_URL)
@@ -71,8 +71,8 @@ def default_handler(chat_id, message):
     print("SUCCESS 1")
 
 
-# def snitch_images(chat_id):
-#     send_text(chat_id, "SNITCH")
+# def stitch_images(chat_id):
+#     send_text(chat_id, "stitch")
 #
     # photos = Photo.objects.filter(group=group_id)
     # print(photos)
