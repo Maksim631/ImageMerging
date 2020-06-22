@@ -36,7 +36,7 @@ def get_file(file_id):
     return Image.open(io.BytesIO(file.content))
 
 
-def snitch_images(user_id):
+def stitch_images(user_id):
     photos = get_user_photos(user_id)
     if len(photos) == 0:
         return "No photos to snitch"
